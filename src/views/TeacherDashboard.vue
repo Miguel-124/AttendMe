@@ -16,12 +16,18 @@ import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 
+interface Session {
+  id: number;
+  courseName: string;
+  date: string;
+}
+
 const router = useRouter();
-const sessions = ref([]);
+const sessions = ref<Session[]>([]);
 
 async function fetchSessions() {
   const token = localStorage.getItem("token");
-  const response = await axios.get(
+  const response = await axios.get<Session[]>(
     "https://attendme-backend.runasp.net/api/course/teacher/sessions",
     {
       headers: { Authorization: `Bearer ${token}` },
