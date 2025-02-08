@@ -13,6 +13,8 @@ import { ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 
+console.log("✅ `LoginView.vue` załadowane!");
+
 const email = ref("");
 const password = ref("");
 const errorMessage = ref("");

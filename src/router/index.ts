@@ -8,6 +8,8 @@ import StudentRegisterDevice from "../views/StudentRegisterDevice.vue";
 import StudentSessionDetails from "../views/StudentSessionDetails.vue";
 import StudentGenerateQRCode from "../views/StudentGenerateQRCode.vue";
 
+console.log("✅ Router uruchomiony!"); // 🔥 Debugowanie
+
 const routes = [
   { path: "/", component: LoginView },
   { path: "/teacher", component: TeacherDashboard },
