@@ -7,22 +7,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { QrcodeStream } from "vue-qrcode-reader";
-import axios from "axios";
+import { ref } from 'vue'
+import { QrcodeStream } from 'vue-qrcode-reader'
+import axios from 'axios'
 
-const message = ref("");
+const message = ref('')
 
 async function onDecode(result: string) {
   try {
     await axios.post(
-      "https://attendme-backend.runasp.net/api/course/attendance/register",
+      'https://attendme-backend.runasp.net/api/course/attendance/register',
       { token: result },
-      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-    );
-    message.value = "Obecność zarejestrowana!";
+      { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } },
+    )
+    message.value = 'Obecność zarejestrowana!'
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    message.value = "Błąd podczas skanowania kodu QR.";
+    message.value = 'Błąd podczas skanowania kodu QR.'
   }
 }
 </script>

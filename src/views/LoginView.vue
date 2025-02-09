@@ -9,31 +9,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import axios from "axios";
-import { useRouter } from "vue-router";
+import { ref } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
 
-console.log("✅ `LoginView.vue` załadowane!");
-
-const email = ref("");
-const password = ref("");
-const errorMessage = ref("");
-const router = useRouter();
+const email = ref('')
+const password = ref('')
+const errorMessage = ref('')
+const router = useRouter()
 
 async function login() {
   try {
     const response = await axios.post(
-      "https://attendme-backend.runasp.net/api/auth/login",
-      {
-        email: email.value,
-        password: password.value,
-      }
-    );
+      `https://attendme-backend.runasp.net/user/login?loginName=${email.value}&password=${password.value}`,
+    )
 
-    localStorage.setItem("token", response.data.token);
-    router.push("/dashboard");
+    localStorage.setItem('token', response.data.token)
+    const user = await axios.post(`https://attendme-backend.runasp.net/user/get`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+    })
+    console.log(user)
+    router.push('/dashboard')
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    errorMessage.value = "Błędny email lub hasło";
+    errorMessage.value = 'Błędny email lub hasło'
   }
 }
 </script>
