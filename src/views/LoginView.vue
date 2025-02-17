@@ -10,14 +10,24 @@
       <!-- Formularz logowania -->
       <div class="form">
         <label class="label">Login</label>
-        <input v-model="email" type="email" placeholder="Podaj twój login" class="input" />
+        <input
+          v-model="email"
+          type="email"
+          placeholder="Podaj twój login"
+          class="input"
+        />
 
         <label class="label">Hasło</label>
-        <input v-model="password" type="password" placeholder="Podaj hasło" class="input" />
+        <input
+          v-model="password"
+          type="password"
+          placeholder="Podaj hasło"
+          class="input"
+        />
 
         <button @click="login" class="button">Zaloguj</button>
 
-        <!-- Błąd logowania -->
+        <!-- Błąd logowania-->
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </div>
 
