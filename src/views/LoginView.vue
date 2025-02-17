@@ -27,7 +27,7 @@
 
         <button @click="login" class="button">Zaloguj</button>
 
-        <!-- Błąd logowania-->
+        <!-- Login issue-->
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </div>
 
