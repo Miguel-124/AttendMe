@@ -42,10 +42,6 @@ async function login() {
     console.log("🟢 Próba logowania...");
 
     // Wysyłamy login i hasło do backendu
-    // const response = await axios.post("https://attendme-backend.runasp.net/user/login", {
-    //   loginName: email.value,
-    //   password: password.value,
-    // });
     const response = await axios.post(
       `https://attendme-backend.runasp.net/user/login?loginName=${email.value}&password=${password.value}`
     );
@@ -68,7 +64,16 @@ async function login() {
     );
     // Pobranie danych użytkownika
     console.log(user);
-    router.push("/dashboard");
+    // Przekierowanie w zależności od roli użytkownika
+    if (user.data.isStudent) {
+      console.log("🎓 Przekierowanie do /student");
+      router.push("/student");
+    } else if (user.data.isTeacher) {
+      console.log("👨‍🏫 Przekierowanie do /teacher");
+      router.push("/teacher");
+    } else {
+      throw new Error("Nieznana rola użytkownika");
+    }
   } catch (error) {
     console.error("❌ Błąd logowania:", error);
     errorMessage.value = "Błędny login lub hasło!";
