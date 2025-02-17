@@ -42,10 +42,13 @@ async function login() {
     console.log("🟢 Próba logowania...");
 
     // Wysyłamy login i hasło do backendu
-    const response = await axios.post("https://attendme-backend.runasp.net/user/login", {
-      loginName: email.value,
-      password: password.value,
-    });
+    // const response = await axios.post("https://attendme-backend.runasp.net/user/login", {
+    //   loginName: email.value,
+    //   password: password.value,
+    // });
+    const response = await axios.post(
+      `https://attendme-backend.runasp.net/user/login?loginName=${email.value}&password=${password.value}`
+    );
 
     // Sprawdzenie, czy backend zwrócił token
     if (!response.data.token) {
@@ -56,38 +59,19 @@ async function login() {
     localStorage.setItem("token", response.data.token);
     console.log("✅ Zalogowano! Token zapisany:", response.data.token);
 
+    // Pobieramy dane użytkownika z backendu
+    const user = await axios.get(
+      `https://attendme-backend.runasp.net/user/get`,
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
     // Pobranie danych użytkownika
-    await getUserData();
+    console.log(user);
+    router.push("/dashboard");
   } catch (error) {
     console.error("❌ Błąd logowania:", error);
     errorMessage.value = "Błędny login lub hasło!";
-  }
-}
-
-// Funkcja pobierająca dane użytkownika po zalogowaniu
-async function getUserData() {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("Brak tokena!");
-
-    // Pobieramy dane użytkownika z backendu
-    const userResponse = await axios.get("https://attendme-backend.runasp.net/user/get", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    console.log("👤 Dane użytkownika:", userResponse.data);
-
-    // Sprawdzenie roli użytkownika i przekierowanie na odpowiedni widok
-    if (userResponse.data.role === "teacher") {
-      router.push("/teacher");
-    } else if (userResponse.data.role === "student") {
-      router.push("/student");
-    } else {
-      throw new Error("Nieznana rola użytkownika");
-    }
-  } catch (error) {
-    console.error("❌ Błąd pobierania danych użytkownika:", error);
-    errorMessage.value = "Błąd autoryzacji. Spróbuj ponownie.";
   }
 }
 </script>
@@ -98,7 +82,7 @@ async function getUserData() {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  /* min-height: 100vh; */
   background-color: #000000;
 }
 
@@ -114,8 +98,9 @@ async function getUserData() {
 
 /* Logo */
 .logo {
-  width: 100px;
+  width: 200px;
   margin-bottom: 20px;
+  border-radius: 20%;
 }
 
 /* Tytuł */
