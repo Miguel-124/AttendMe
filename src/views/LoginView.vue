@@ -53,7 +53,7 @@ async function login() {
 
     // Wysyłamy login i hasło do backendu
     const response = await axios.post(
-      `https://attendme-backend.runasp.net/user/login?loginName=${email.value}&password=${password.value}`
+      `https://attendme-backend.runasp.net/user/login?loginName=${encodeURIComponent(email.value)}&password=${encodeURIComponent(password.value)}`
     );
 
     // Sprawdzenie, czy backend zwrócił token
