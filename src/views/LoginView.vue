@@ -1,13 +1,10 @@
 <template>
   <div class="login-container">
     <div class="login-box">
-      <!-- Logo -->
       <img src="@/assets/logo.png" alt="AttendMe Logo" class="logo" />
 
-      <!-- Nagłówek -->
       <h2 class="title">Logowanie</h2>
 
-      <!-- Formularz logowania -->
       <div class="form">
         <label class="label">Login</label>
         <input
@@ -27,17 +24,16 @@
 
         <button @click="login" class="button">Zaloguj</button>
 
-        <!-- Login issue-->
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </div>
 
-      <!-- Stopka -->
       <p class="footer">© 2025 true-vue</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { jwtDecode } from "jwt-decode";
 import { ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
@@ -49,8 +45,6 @@ const router = useRouter();
 
 async function login() {
   try {
-    console.log("🟢 Próba logowania...");
-
     // Wysyłamy login i hasło do backendu
     const response = await axios.post(
       `https://attendme-backend.runasp.net/user/login?loginName=${encodeURIComponent(email.value)}&password=${encodeURIComponent(password.value)}`
@@ -61,31 +55,50 @@ async function login() {
       throw new Error("Brak tokena w odpowiedzi serwera");
     }
 
-    // Zapisujemy token w localStorage
-    localStorage.setItem("token", response.data.token);
-    console.log("✅ Zalogowano! Token zapisany:", response.data.token);
+    const tokenData = response.data;
+    console.log("Dane autoryzacyjne:", tokenData);
+    const decoded = jwtDecode(tokenData.token);
+
+    console.log("decoded", decoded);
+
+    // Zapisanie do localStorage jako string
+    sessionStorage.setItem("authData", JSON.stringify(tokenData));
 
     // Pobieramy dane użytkownika z backendu
+    const storedData = sessionStorage.getItem("authData");
+
+    console.log("storedData", storedData);
+
+    if (!storedData) {
+      throw new Error("Brak danych autoryzacyjnych w localStorage");
+    }
+    const authData = JSON.parse(storedData);
+
+    console.log("authData", authData);
+
     const user = await axios.get(
       `https://attendme-backend.runasp.net/user/get`,
       {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: {
+          Authorization: `Bearer ${authData.token}`,
+        },
       }
     );
+
     // Pobranie danych użytkownika
     console.log(user);
     // Przekierowanie w zależności od roli użytkownika
     if (user.data.isStudent) {
-      console.log("🎓 Przekierowanie do /student");
+      console.log("Przekierowanie do /student");
       router.push("/student");
     } else if (user.data.isTeacher) {
-      console.log("👨‍🏫 Przekierowanie do /teacher");
+      console.log("Przekierowanie do /teacher");
       router.push("/teacher");
     } else {
       throw new Error("Nieznana rola użytkownika");
     }
   } catch (error) {
-    console.error("❌ Błąd logowania:", error);
+    console.error("Błąd logowania:", error);
     errorMessage.value = "Błędny login lub hasło!";
   }
 }
@@ -95,6 +108,9 @@ async function login() {
 /* Główne kontener */
 .login-container {
   display: flex;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
   justify-content: center;
   align-items: center;
   /* min-height: 100vh; */
@@ -108,7 +124,7 @@ async function login() {
   border-radius: 12px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
-  width: 400px;
+  width: 500px;
 }
 
 /* Logo */
