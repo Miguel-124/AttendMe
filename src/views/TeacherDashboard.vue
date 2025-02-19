@@ -59,11 +59,11 @@
           :key="session.courseSessionId"
           class="session-item"
         >
-          <div class="session-header">
-            <span class="session-time">{{
-              formatSessionDate(session.dateStart, session.dateEnd)
-            }}</span>
-          </div>
+          <div
+            class="session-header session-time"
+            v-html="formatSessionDate(session.dateStart, session.dateEnd)"
+          ></div>
+
           <div class="session-content">
             <h4>{{ session.courseName }}</h4>
             <p>{{ session.locationName }}</p>
@@ -86,6 +86,9 @@ import { ref, onMounted, watch, computed } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import dayjs from "dayjs";
+import "dayjs/locale/pl";
+
+dayjs.locale("pl");
 
 interface Session {
   courseId: number;
@@ -115,7 +118,7 @@ async function fetchSessions() {
   }
   const authData = JSON.parse(storedData);
 
-  // 🔹 Ustalanie zakresu daty na podstawie `dateFilter`
+  // Ustalanie zakresu daty na podstawie `dateFilter`
   const now = new Date();
   let dateStart = null;
   let dateEnd = null;
@@ -135,10 +138,10 @@ async function fetchSessions() {
       break;
     case "future":
       dateStart = new Date().toISOString();
-      dateEnd = null; // 🔹 Brak limitu końcowego
+      dateEnd = null;
       break;
     case "past":
-      dateStart = null; // 🔹 Brak limitu początkowego
+      dateStart = null;
       dateEnd = new Date().toISOString();
       break;
     case "all":
@@ -152,7 +155,7 @@ async function fetchSessions() {
     dateEnd?: string;
   }
 
-  const filters: Filters = {}; // 🔹 Teraz jest poprawny typ zamiast `any`
+  const filters: Filters = {};
 
   if (dateStart) filters.dateStart = dateStart;
   if (dateEnd) filters.dateEnd = dateEnd;
@@ -163,7 +166,7 @@ async function fetchSessions() {
       {
         pageNumber: 1,
         pageSize: 999999,
-        filters, // 🔹 Dynamiczne filtrowanie daty
+        filters,
       },
       {
         headers: {
@@ -171,7 +174,6 @@ async function fetchSessions() {
         },
       }
     );
-    console.log(response.data);
 
     sessions.value = response.data.items || [];
   } catch (error) {
@@ -187,18 +189,28 @@ onMounted(fetchSessions);
 
 /*    Filtrowanie listy sesji na podstawie wyszukiwarki */
 const filteredSessions = computed(() => {
-  return sessions.value.filter(
-    (session) =>
+  return sessions.value.filter((session) => {
+    const matchesSearch =
       searchText.value === "" ||
-      session.courseName.toLowerCase().includes(searchText.value.toLowerCase())
-  );
+      session.courseName
+        .toLowerCase()
+        .includes(searchText.value.toLowerCase()) ||
+      session.locationName
+        .toLowerCase()
+        .includes(searchText.value.toLowerCase()) ||
+      session.courseGroupName
+        .toLowerCase()
+        .includes(searchText.value.toLowerCase());
+
+    return matchesSearch;
+  });
 });
 
-/* 🔹 Formatowanie daty */
+/* Formatowanie daty */
 function formatSessionDate(start: string, end: string): string {
   const startDate = dayjs(start);
   const endDate = dayjs(end);
-  return `${startDate.format("dddd HH:mm")} - ${endDate.format("HH:mm")}`;
+  return `${startDate.format("DD.MM.YYYY")} (${startDate.format("dddd")})<br>${startDate.format("HH:mm")} - ${endDate.format("HH:mm")}`;
 }
 
 function logout() {
@@ -219,7 +231,6 @@ onMounted(fetchSessions);
 </script>
 
 <style scoped>
-/* NAVBAR */
 .navbar {
   background-color: #ffffff;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
@@ -227,7 +238,6 @@ onMounted(fetchSessions);
   border-radius: 5px;
 }
 
-/*    NAVBAR - flexbox dla poprawnego rozmieszczenia */
 .navbar-container {
   display: flex;
   align-items: center;
@@ -235,20 +245,17 @@ onMounted(fetchSessions);
   width: 100%;
 }
 
-/* Logo - po lewej */
 .logo img {
   height: 100px;
   border-radius: 20%;
 }
 
-/*    Sekcja nawigacji */
 .navbar-right {
   display: flex;
   align-items: center;
   margin-left: auto;
 }
 
-/* MENU - hamburger */
 .menu-button {
   background: none;
   border: none;
@@ -259,7 +266,6 @@ onMounted(fetchSessions);
   font-weight: bold;
 }
 
-/* Dropdown */
 .dropdown {
   position: relative;
 }
@@ -277,14 +283,12 @@ onMounted(fetchSessions);
   list-style: none;
 }
 
-/*    Nagłówek dropdowna */
 .dropdown-header {
   font-weight: bold;
   color: #000000;
   font-size: 16px;
 }
 
-/*    Opcje menu */
 .dropdown-item {
   padding: 10px;
   cursor: pointer;
@@ -292,12 +296,10 @@ onMounted(fetchSessions);
   color: #000000;
 }
 
-/*    Podświetlenie opcji w dropdownie */
 .dropdown-item:hover {
   background: #e0e0e0;
 }
 
-/* Odznaka (rola użytkownika) */
 .badge {
   display: inline-block;
   padding: 5px 10px;
@@ -308,7 +310,6 @@ onMounted(fetchSessions);
   font-weight: bold;
 }
 
-/* FILTRY */
 .filters-container {
   background: #f8f9fa;
   padding: 15px;
@@ -324,6 +325,8 @@ onMounted(fetchSessions);
 h5 {
   font-size: 18px;
   font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
   color: #000000;
   margin-bottom: 10px;
 }
@@ -338,7 +341,6 @@ h5 {
   color: #000000;
 }
 
-/*    LISTA ZAJĘĆ */
 .session-list {
   list-style: none;
   padding: 0;
@@ -349,7 +351,7 @@ h5 {
   justify-content: space-between;
   align-items: center;
   padding: 12px;
-  margin-bottom: 10px;
+  margin: 10px 30px;
   background: #ffffff;
   border-radius: 5px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
@@ -357,7 +359,6 @@ h5 {
   color: #000000;
 }
 
-/*    Przycisk "Szczegóły" */
 .btn-details {
   background: #007bff;
   color: white;
