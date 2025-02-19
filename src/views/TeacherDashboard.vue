@@ -56,14 +56,23 @@
       <ul class="session-list">
         <li
           v-for="session in filteredSessions"
-          :key="session.id"
+          :key="session.courseSessionId"
           class="session-item"
         >
-          <div>
-            <strong>{{ session.courseName }}</strong>
-            <span>({{ session.date }})</span>
+          <div class="session-header">
+            <span class="session-time">{{
+              formatSessionDate(session.dateStart, session.dateEnd)
+            }}</span>
           </div>
-          <button class="btn-details" @click="openSession(session.id)">
+          <div class="session-content">
+            <h4>{{ session.courseName }}</h4>
+            <p>{{ session.locationName }}</p>
+            <p>{{ session.courseGroupName }}</p>
+          </div>
+          <button
+            class="btn-details"
+            @click="openSession(session.courseSessionId)"
+          >
             Szczegóły
           </button>
         </li>
@@ -76,11 +85,17 @@
 import { ref, onMounted, watch, computed } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
+import dayjs from "dayjs";
 
 interface Session {
-  id: number;
+  courseId: number;
   courseName: string;
-  date: string;
+  courseGroupId: number;
+  courseGroupName: string;
+  courseSessionId: number;
+  locationName: string;
+  dateStart: string;
+  dateEnd: string;
 }
 
 const router = useRouter();
@@ -95,25 +110,70 @@ const searchText = ref("");
 async function fetchSessions() {
   const storedData = sessionStorage.getItem("authData");
   if (!storedData) {
-    console.error("Brak danych autoryzacyjnych w localStorage");
+    console.error("Brak danych autoryzacyjnych w sessionStorage");
     return;
   }
   const authData = JSON.parse(storedData);
 
+  // 🔹 Ustalanie zakresu daty na podstawie `dateFilter`
+  const now = new Date();
+  let dateStart = null;
+  let dateEnd = null;
+
+  switch (dateFilter.value) {
+    case "today":
+      dateStart = new Date(now.setHours(0, 0, 0, 0)).toISOString();
+      dateEnd = new Date(now.setHours(23, 59, 59, 999)).toISOString();
+      break;
+    case "week-ahead":
+      dateStart = new Date(now.setHours(0, 0, 0, 0)).toISOString();
+      dateEnd = new Date(now.setDate(now.getDate() + 7)).toISOString();
+      break;
+    case "month-ahead":
+      dateStart = new Date(now.setHours(0, 0, 0, 0)).toISOString();
+      dateEnd = new Date(now.setMonth(now.getMonth() + 1)).toISOString();
+      break;
+    case "future":
+      dateStart = new Date().toISOString();
+      dateEnd = null; // 🔹 Brak limitu końcowego
+      break;
+    case "past":
+      dateStart = null; // 🔹 Brak limitu początkowego
+      dateEnd = new Date().toISOString();
+      break;
+    case "all":
+      dateStart = null;
+      dateEnd = null;
+      break;
+  }
+
+  interface Filters {
+    dateStart?: string;
+    dateEnd?: string;
+  }
+
+  const filters: Filters = {}; // 🔹 Teraz jest poprawny typ zamiast `any`
+
+  if (dateStart) filters.dateStart = dateStart;
+  if (dateEnd) filters.dateEnd = dateEnd;
+
   try {
-    const response = await axios.post<Session[]>(
+    const response = await axios.post(
       "https://attendme-backend.runasp.net/course/teacher/sessions/get",
+      {
+        pageNumber: 1,
+        pageSize: 999999,
+        filters, // 🔹 Dynamiczne filtrowanie daty
+      },
       {
         headers: {
           Authorization: `Bearer ${authData.token}`,
         },
-        // params: {
-        //   filter: dateFilter.value !== "all" ? dateFilter.value : undefined, //   Tylko jeśli filtr ≠ "all"
-        // },
       }
     );
+    console.log(response.data);
 
-    sessions.value = response.data;
+    sessions.value = response.data.items || [];
   } catch (error) {
     console.error("Błąd pobierania sesji nauczyciela:", error);
   }
@@ -134,6 +194,13 @@ const filteredSessions = computed(() => {
   );
 });
 
+/* 🔹 Formatowanie daty */
+function formatSessionDate(start: string, end: string): string {
+  const startDate = dayjs(start);
+  const endDate = dayjs(end);
+  return `${startDate.format("dddd HH:mm")} - ${endDate.format("HH:mm")}`;
+}
+
 function logout() {
   localStorage.removeItem("token");
   router.push("/");
@@ -146,6 +213,9 @@ function openSession(id: number) {
 function toggleMenu() {
   showMenu.value = !showMenu.value;
 }
+
+watch(dateFilter, fetchSessions);
+onMounted(fetchSessions);
 </script>
 
 <style scoped>

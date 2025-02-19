@@ -61,7 +61,7 @@ async function login() {
 
     console.log("decoded", decoded);
 
-    // Zapisanie do localStorage jako string
+    // Zapisanie do sessionStorage jako string
     sessionStorage.setItem("authData", JSON.stringify(tokenData));
 
     // Pobieramy dane użytkownika z backendu
