@@ -173,7 +173,7 @@ async function fetchSessions() {
     );
     console.log(response.data);
 
-    sessions.value = response.data.items || [];
+    sessions.value = response.data.items || []; // 🔥 Teraz sessions.value jest tablicą
   } catch (error) {
     console.error("Błąd pobierania sesji nauczyciela:", error);
   }
