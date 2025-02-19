@@ -104,10 +104,50 @@ interface Session {
 const router = useRouter();
 const sessions = ref<Session[]>([]);
 const showMenu = ref(false);
-const userName = ref("Paweł Kołodziej");
-const userRole = ref("Nauczyciel");
 const dateFilter = ref("all");
 const searchText = ref("");
+
+// 🔥 Zmienne do przechowywania danych użytkownika
+const userName = ref("Ładowanie...");
+const userRole = ref("");
+
+// 🔹 Funkcja pobierająca dane użytkownika
+async function fetchUserData() {
+  const storedData = sessionStorage.getItem("authData");
+  if (!storedData) {
+    console.error("Brak danych autoryzacyjnych w sessionStorage");
+    return;
+  }
+  const authData = JSON.parse(storedData);
+
+  try {
+    const response = await axios.get("https://attendme-backend.runasp.net/user/get", {
+      headers: {
+        Authorization: `Bearer ${authData.token}`,
+      },
+    });
+
+    const userData = response.data;
+
+    // 🔥 Ustawiamy nazwę użytkownika
+    userName.value = `${userData.name} ${userData.surname}`;
+
+    // 🔥 Ustalanie roli użytkownika
+    if (userData.isTeacher) {
+      userRole.value = "Nauczyciel";
+    } else if (userData.isStudent) {
+      userRole.value = "Uczeń";
+    } else if (userData.isAdmin) {
+      userRole.value = "Administrator";
+    } else {
+      userRole.value = "Nieznana rola";
+    }
+
+  } catch (error) {
+    console.error("Błąd pobierania danych użytkownika:", error);
+    userName.value = "Błąd ładowania";
+  }
+}
 
 /* Funkcja pobierająca sesje */
 async function fetchSessions() {
@@ -184,8 +224,11 @@ async function fetchSessions() {
 /*    Automatyczne pobieranie nowych danych po zmianie filtra */
 watch(dateFilter, fetchSessions);
 
-/*    Pobranie danych po załadowaniu strony */
-onMounted(fetchSessions);
+// 🔹 Pobranie danych użytkownika i sesji po załadowaniu strony
+onMounted(async () => {
+  await fetchUserData();
+  await fetchSessions();
+});
 
 /*    Filtrowanie listy sesji na podstawie wyszukiwarki */
 const filteredSessions = computed(() => {
