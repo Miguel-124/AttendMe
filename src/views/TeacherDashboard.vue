@@ -56,14 +56,23 @@
       <ul class="session-list">
         <li
           v-for="session in filteredSessions"
-          :key="session.id"
+          :key="session.courseSessionId"
           class="session-item"
         >
-          <div>
-            <strong>{{ session.courseName }}</strong>
-            <span>({{ session.date }})</span>
+          <div class="session-header">
+            <span class="session-time">{{
+              formatSessionDate(session.dateStart, session.dateEnd)
+            }}</span>
           </div>
-          <button class="btn-details" @click="openSession(session.id)">
+          <div class="session-content">
+            <h4>{{ session.courseName }}</h4>
+            <p>{{ session.locationName }}</p>
+            <p>{{ session.courseGroupName }}</p>
+          </div>
+          <button
+            class="btn-details"
+            @click="openSession(session.courseSessionId)"
+          >
             Szczegóły
           </button>
         </li>
@@ -76,11 +85,17 @@
 import { ref, onMounted, watch, computed } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
+import dayjs from "dayjs";
 
 interface Session {
-  id: number;
+  courseId: number;
   courseName: string;
-  date: string;
+  courseGroupId: number;
+  courseGroupName: string;
+  courseSessionId: number;
+  locationName: string;
+  dateStart: string;
+  dateEnd: string;
 }
 
 const router = useRouter();
@@ -133,11 +148,11 @@ async function fetchSessions() {
   }
 
   interface Filters {
-  dateStart?: string;
-  dateEnd?: string;
-}
+    dateStart?: string;
+    dateEnd?: string;
+  }
 
-const filters: Filters = {}; // 🔹 Teraz jest poprawny typ zamiast `any`
+  const filters: Filters = {}; // 🔹 Teraz jest poprawny typ zamiast `any`
 
   if (dateStart) filters.dateStart = dateStart;
   if (dateEnd) filters.dateEnd = dateEnd;
@@ -159,13 +174,10 @@ const filters: Filters = {}; // 🔹 Teraz jest poprawny typ zamiast `any`
     console.log(response.data);
 
     sessions.value = response.data.items || []; // 🔥 Teraz sessions.value jest tablicą
-
   } catch (error) {
     console.error("Błąd pobierania sesji nauczyciela:", error);
   }
 }
-
-
 
 /*    Automatyczne pobieranie nowych danych po zmianie filtra */
 watch(dateFilter, fetchSessions);
@@ -182,6 +194,13 @@ const filteredSessions = computed(() => {
   );
 });
 
+/* 🔹 Formatowanie daty */
+function formatSessionDate(start: string, end: string): string {
+  const startDate = dayjs(start);
+  const endDate = dayjs(end);
+  return `${startDate.format("dddd HH:mm")} - ${endDate.format("HH:mm")}`;
+}
+
 function logout() {
   localStorage.removeItem("token");
   router.push("/");
@@ -194,6 +213,9 @@ function openSession(id: number) {
 function toggleMenu() {
   showMenu.value = !showMenu.value;
 }
+
+watch(dateFilter, fetchSessions);
+onMounted(fetchSessions);
 </script>
 
 <style scoped>
