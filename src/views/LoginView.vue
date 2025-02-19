@@ -33,7 +33,6 @@
 </template>
 
 <script setup lang="ts">
-import { jwtDecode } from "jwt-decode";
 import { ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
@@ -56,10 +55,6 @@ async function login() {
     }
 
     const tokenData = response.data;
-    console.log("Dane autoryzacyjne:", tokenData);
-    const decoded = jwtDecode(tokenData.token);
-
-    console.log("decoded", decoded);
 
     // Zapisanie do sessionStorage jako string
     sessionStorage.setItem("authData", JSON.stringify(tokenData));
@@ -67,14 +62,10 @@ async function login() {
     // Pobieramy dane użytkownika z backendu
     const storedData = sessionStorage.getItem("authData");
 
-    console.log("storedData", storedData);
-
     if (!storedData) {
       throw new Error("Brak danych autoryzacyjnych w localStorage");
     }
     const authData = JSON.parse(storedData);
-
-    console.log("authData", authData);
 
     const user = await axios.get(
       `https://attendme-backend.runasp.net/user/get`,
