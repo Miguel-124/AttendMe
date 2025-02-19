@@ -219,7 +219,7 @@ function logout() {
 }
 
 function openSession(id: number) {
-  router.push(`/session/${id}`);
+  router.push(`/teacher/session/${id}`);
 }
 
 function toggleMenu() {
