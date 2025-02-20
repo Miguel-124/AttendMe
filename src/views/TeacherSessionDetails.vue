@@ -29,6 +29,47 @@
       <p>Nazwa: {{ session?.courseName }}</p>
       <p>Data: {{ session?.date }}</p>
     </div>
+    <div>
+      <h2>Lista obecności</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Uczestnik</th>
+            <th>Nr albumu</th>
+            <th>Obecność</th>
+            <th>Akcja</th>
+            <th>Urządzenie</th>
+            <th>Rejestracja</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="attender in attendanceList" :key="attender.attenderUserId">
+            <td>{{ attender.userName }} {{ attender.userSurname }}</td>
+            <td>{{ attender.studentAlbumIdNumber }}</td>
+            <td>
+              <span :class="attender.wasUserPresent ? 'present' : 'absent'">
+                {{ attender.wasUserPresent ? "Obecny" : "Brak" }}
+              </span>
+            </td>
+            <td>
+              <button @click="toggleAttendance(attender)">
+                {{ attender.wasUserPresent ? "Odnacz" : "Zaznacz" }}
+              </button>
+            </td>
+            <td>
+              <button @click="toggleAttendance(attender)">
+                {{ attender.wasUserPresent ? "Odnacz" : "Zaznacz" }}
+              </button>
+            </td>
+            <td>
+              <button @click="toggleAttendance(attender)">
+                {{ attender.wasUserPresent ? "Odnacz" : "Zaznacz" }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -44,27 +85,110 @@ interface Session {
 }
 
 const route = useRoute();
-const sessionId = ref(route.params.id);
+const sessionId = ref(Number(route.params.id));
 const session = ref<Session | null>(null);
+const showMenu = ref(false);
 
-async function fetchSessionDetails() {
-  const token = localStorage.getItem("token");
+const userName = ref("");
+const userRole = ref("");
+const attendanceList = ref<Attendance[]>([]);
 
+interface Attendance {
+  attendanceLogId: number | null;
+  courseSessionId: number;
+  attenderUserId: number;
+  userName: string;
+  userSurname: string;
+  studentAlbumIdNumber: number;
+  attendanceLogMinDateCreated: string | null;
+  wasUserPresent: boolean;
+}
+
+function getToken() {
+  const storedData = sessionStorage.getItem("authData");
+  if (!storedData) {
+    console.error("Brak danych autoryzacyjnych w sessionStorage");
+    return;
+  }
+  const authData = JSON.parse(storedData);
+  return authData.token;
+}
+
+async function fetchUserData() {
   try {
-    const response = await axios.get<Session>(
-      `https://attendme-backend.runasp.net/api/course/session/${sessionId.value}`,
-      { headers: { Authorization: `Bearer ${token}` } }
+    const response = await axios.get(
+      "https://attendme-backend.runasp.net/user/get",
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      }
     );
-    session.value = response.data;
+
+    const userData = response.data;
+    userName.value = `${userData.name} ${userData.surname}`;
+
+    if (userData.isTeacher) {
+      userRole.value = "Nauczyciel";
+    } else if (userData.isStudent) {
+      userRole.value = "Uczeń";
+    } else if (userData.isAdmin) {
+      userRole.value = "Administrator";
+    } else {
+      userRole.value = "Nieznana rola";
+    }
   } catch (error) {
-    console.error("Błąd pobierania danych sesji", error);
+    console.error("Błąd pobierania danych użytkownika:", error);
+    userName.value = "Błąd ładowania";
+  }
+}
+
+async function fetchAttendanceList() {
+  try {
+    const response = await axios.get<Attendance[]>(
+      `https://attendme-backend.runasp.net/course/session/attendance-list/get?sessionId=${sessionId.value}`,
+      { headers: { Authorization: `Bearer ${getToken()}` } }
+    );
+    attendanceList.value = response.data;
+  } catch (error) {
+    console.error("Błąd pobierania listy obecności:", error);
+  }
+}
+
+async function toggleAttendance(attender: Attendance) {
+  const newStatus = !attender.wasUserPresent;
+  try {
+    await axios.post(
+      "https://attendme-backend.runasp.net/course/session/attendance-list/update",
+      {
+        attendanceLogId: attender.attendanceLogId,
+        attenderUserId: attender.attenderUserId,
+        courseSessionId: attender.courseSessionId,
+        wasUserPresent: newStatus,
+      },
+      { headers: { Authorization: `Bearer ${getToken()}` } }
+    );
+
+    // Aktualizacja lokalnej listy obecności
+    attender.wasUserPresent = newStatus;
+  } catch (error) {
+    console.error("Błąd aktualizacji obecności:", error);
   }
 }
 
 function toggleMenu() {
   showMenu.value = !showMenu.value;
 }
-onMounted(fetchSessionDetails);
+
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "/";
+}
+
+onMounted(async () => {
+  await fetchUserData();
+  await fetchAttendanceList();
+});
 </script>
 
 <style scoped>
@@ -145,5 +269,57 @@ onMounted(fetchSessionDetails);
   color: white;
   border-radius: 12px;
   font-weight: bold;
+}
+
+table {
+  width: 90%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+tr {
+  background-color: white;
+}
+
+th,
+td {
+  color: black;
+  border: 1px solid #ccc;
+  padding: 8px;
+}
+
+th {
+  background-color: #c2c7cb;
+  color: black;
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.present {
+  color: white;
+  background-color: green;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.absent {
+  color: white;
+  background-color: red;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+button {
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:hover {
+  opacity: 0.8;
 }
 </style>
