@@ -153,12 +153,12 @@ async function fetchUserData() {
 
 // Funkcja pobierająca sesje
 async function fetchSessions() {
-  const storedData = sessionStorage.getItem("authData");
-  if (!storedData) {
-    console.error("Brak danych autoryzacyjnych w sessionStorage");
-    return;
-  }
-  const authData = JSON.parse(storedData);
+  // const storedData = sessionStorage.getItem("authData");
+  // if (!storedData) {
+  //   console.error("Brak danych autoryzacyjnych w sessionStorage");
+  //   return;
+  // }
+  // const authData = JSON.parse(storedData);
 
   // Ustalanie zakresu daty na podstawie `dateFilter`
   const now = new Date();
@@ -212,14 +212,14 @@ async function fetchSessions() {
       },
       {
         headers: {
-          Authorization: `Bearer ${authData.token}`,
+          Authorization: `Bearer ${getToken()}`,
         },
       }
     );
 
     sessions.value = response.data.items || [];
   } catch (error) {
-    console.error("Błąd pobierania sesji nauczyciela:", error);
+    console.error("Błąd pobierania sesji:", error);
   }
 }
 
@@ -256,6 +256,16 @@ function formatSessionDate(start: string, end: string): string {
   const startDate = dayjs(start);
   const endDate = dayjs(end);
   return `${startDate.format("DD.MM.YYYY")} (${startDate.format("dddd")})<br>${startDate.format("HH:mm")} - ${endDate.format("HH:mm")}`;
+}
+
+function getToken() {
+  const storedData = sessionStorage.getItem("authData");
+  if (!storedData) {
+    console.error("Brak danych autoryzacyjnych w sessionStorage");
+    return "";
+  }
+  const authData = JSON.parse(storedData);
+  return authData.token;
 }
 
 function logout() {
