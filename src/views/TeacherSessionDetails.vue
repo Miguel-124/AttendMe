@@ -37,6 +37,11 @@
           {{ formatTimeRange(session.dateStart, session.dateEnd) }}
         </p>
       </div>
+      <div class="lesson-actions">
+        <button class="device-btn orange" @click="openQrScanner">
+          <i class="fas fa-qrcode"></i> Skanuj Obecność
+        </button>
+      </div>
     </div>
 
     <!-- LISTA OBECNOŚCI -->
@@ -126,6 +131,19 @@
         </transition>
       </div>
     </transition>
+    <transition name="modal-fade">
+          <div v-if="showQrModal" class="modal-backdrop">
+            <transition name="modal-scale">
+              <div class="modal-content">
+                <div class="close-button" @click="showQrModal = false">×</div>
+                <h2 class="modal-title">Skaner obecności</h2>
+                <p>Do sprawdzania obecności wymagane jest urządzenie wyposażone w kamerę (tablet lub telefon). Zeskanuj na nim poniższy kod QR lub otwórz adres url, który możesz skopiować poniższym przyciskiem. Sprawdzenie obecności polega na umieszczeniu w polu widzenia kamery skanera kodu QR wygnerowanego na ekranie telefonu uczestnika.</p>
+                <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + qrCodeUrl" alt="QR Code">
+                <button @click="copyQrCodeUrl" class="reset-btn">Skopiuj adres</button>
+              </div>
+            </transition>
+          </div>
+        </transition>
   </div>
 </template>
 
@@ -153,6 +171,10 @@ const deviceName = ref("");
 const deviceTokenLoading = ref(false);
 const resetMessage = ref("");
 
+const showQrModal = ref(false);
+const qrCodeUrl = ref("");
+
+
 interface Attendance {
   attendanceLogId: number | null;
   courseSessionId: number;
@@ -172,6 +194,19 @@ interface Session {
   locationName: string;
   dateStart: string;
   dateEnd: string;
+}
+
+async function openQrScanner() {
+  try {
+    const tokenResponse = await axios.get(
+      `https://attendme-backend.runasp.net/course/session/attendance/scanner/token/get?courseSessionId=${sessionId.value}`,
+      { headers: { Authorization: `Bearer ${getToken()}` } }
+    );
+    qrCodeUrl.value = `https://attendme.runasp.net/#/teacher/scanner/${tokenResponse.data.token}`;
+    showQrModal.value = true;
+  } catch (error) {
+    console.error("Błąd pobierania tokena skanera:", error);
+  }
 }
 
 // --- POBIERANIE LISTY SESJI ---
@@ -413,6 +448,13 @@ onMounted(async () => {
   await fetchSessions();
   await fetchDevicesForAttendance();
 });
+function copyQrCodeUrl() {
+  navigator.clipboard.writeText(qrCodeUrl.value).then(() => {
+    console.log("Adres skopiowany do schowka");
+  }).catch(err => {
+    console.error("Błąd kopiowania adresu:", err);
+  });
+}
 </script>
 
 <style scoped>
@@ -456,6 +498,7 @@ onMounted(async () => {
 }
 
 .dropdown-menu {
+  z-index: 5;
   position: absolute;
   right: 0;
   top: 40px;
@@ -595,6 +638,20 @@ button {
   background: linear-gradient(135deg, #ffc107, #ffdf6b);
   color: black;
 }
+
+.device-btn.orange {
+  background: linear-gradient(135deg, #ff8307, #f17508);
+  color: rgb(254, 254, 254);
+  padding: 10px 16px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .device-btn.gray {
   background: #cccccc;
   color: white;
@@ -617,6 +674,9 @@ i {
 }
 
 .lesson-card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
   background: #ffffff;
   padding: 20px;
   border-radius: 12px;
@@ -625,6 +685,13 @@ i {
   margin: 20px auto;
   text-align: left;
   border-left: 5px solid #007bff;
+}
+
+.lesson-actions {
+  position: absolute;
+  top: 60%;
+  right: 40px;
+  transform: translateY(-50%);
 }
 
 .lesson-title {
