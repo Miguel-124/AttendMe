@@ -15,7 +15,7 @@ const routes = [
   { path: "/teacher/scanner", component: TeacherScanner },
   { path: "/student", component: StudentDashboard },
   { path: "/student/register-device", component: StudentRegisterDevice },
-  { path: "/student/session/:id", component: StudentSessionDetails },
+  { path: "/session/:id", component: StudentSessionDetails },
   { path: "/student/generate-qr", component: StudentGenerateQRCode },
 ];
 
