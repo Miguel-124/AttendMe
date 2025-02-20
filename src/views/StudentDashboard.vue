@@ -389,6 +389,13 @@ h5 {
   padding: 0;
 }
 
+h4 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #000000;
+  margin-bottom: 5px;
+}
+
 .session-item {
   display: flex;
   justify-content: space-between;
@@ -402,9 +409,16 @@ h5 {
   color: #000000;
 }
 
+.session-header {
+  font-size: 16px;
+  font-weight: bold;
+  color: #000000;
+}
+
 .btn-details {
   background: #007bff;
   color: white;
+  font-size: 16px;
   border: none;
   padding: 8px 12px;
   border-radius: 5px;

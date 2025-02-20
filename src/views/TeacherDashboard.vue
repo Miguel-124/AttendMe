@@ -367,6 +367,13 @@ onMounted(fetchSessions);
   gap: 10px;
 }
 
+h4 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #000000;
+  margin-bottom: 5px;
+}
+
 h5 {
   font-size: 18px;
   font-weight: bold;
@@ -404,9 +411,16 @@ h5 {
   color: #000000;
 }
 
+.session-header {
+  font-size: 16px;
+  font-weight: bold;
+  color: #000000;
+}
+
 .btn-details {
   background: #007bff;
   color: white;
+  font-size: 16px;
   border: none;
   padding: 8px 12px;
   border-radius: 5px;
