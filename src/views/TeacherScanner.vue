@@ -30,19 +30,17 @@ import axios from "axios";
 import { QrcodeStream } from "vue-qrcode-reader";
 
 const route = useRoute();
-
 const token = ref<string>("");
 const loading = ref<boolean>(true);
 const error = ref<string | null>(null);
 const scannedData = ref<string | null>(null);
+const errorMessage = ref<string | null>(null);
 
 // 🔥 Pobranie tokena z URL
 onMounted(() => {
   token.value = route.params.token as string || "";
   if (!token.value) {
-    error.value = "Brak tokenu skanera w adresie URL.";
-  } else {
-    loading.value = false;
+    errorMessage.value = "Brak tokenu rejestracyjnego w adresie URL.";
   }
 });
 
@@ -51,12 +49,22 @@ const onScanSuccess = async (result: string) => {
   scannedData.value = result;
   console.log("Zeskanowany kod:", result);
 
-  try {
-    await axios.post("https://attendme-backend.runasp.net/course/session/attendance/scan", {
-  token: token.value,
-  scannedData: result,
-});
+  if (!token.value) {
+    error.value = "Brak tokenu skanera. Nie można przesłać skanu.";
+    return;
+  }
 
+  try {
+    await axios.post(
+      "https://attendme-backend.runasp.net/course/session/attendance/scan",
+      {
+        token: token.value,  // ✅ Przekazanie tokenu z URL
+        scannedData: result, // ✅ Przekazanie zeskanowanego kodu
+      },
+      {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      }
+    );
 
     alert("Kod QR został pomyślnie przesłany!");
   } catch (err) {
@@ -71,6 +79,17 @@ const onCameraInit = (promise: Promise<void>) => {
     error.value = "Nie można uzyskać dostępu do kamery.";
   });
 };
+
+// 🔥 Pobieranie tokenu użytkownika (jeśli potrzebny do autoryzacji)
+function getToken() {
+  const storedData = sessionStorage.getItem("authData");
+  if (!storedData) {
+    console.error("Brak danych autoryzacyjnych w sessionStorage");
+    return "";
+  }
+  const authData = JSON.parse(storedData);
+  return authData.token;
+}
 </script>
 
 <style scoped>

@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import axios from "axios";
+import axios from "axios"
 
 const route = useRoute();
 const token = ref<string>("");
@@ -74,13 +74,18 @@ const registerDevice = async () => {
   successMessage.value = null;
 
   try {
-    const response = await axios.post("https://attendme-backend.runasp.net/user/device/register", {
-      token: token.value,
-      deviceName: deviceName.value,
-      firstName: firstName.value,
-      lastName: lastName.value,
-      studentId: studentId.value,
-    });
+    await axios.post(
+      "https://attendme-backend.runasp.net/user/device/register",
+      {
+        deviceName: deviceName.value,
+        studentName: firstName.value,
+        studentSurname: lastName.value,
+        albumIdNumber: studentId.value,
+      },
+      {
+        headers: { Authorization: `Bearer ${token.value}` },
+      }
+    );
 
     successMessage.value = "Urządzenie zostało pomyślnie zarejestrowane!";
   } catch (err) {
@@ -90,6 +95,9 @@ const registerDevice = async () => {
     loading.value = false;
   }
 };
+
+
+
 
 </script>
 

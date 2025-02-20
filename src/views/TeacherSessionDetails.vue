@@ -198,16 +198,27 @@ interface Session {
 
 async function openQrScanner() {
   try {
-    const tokenResponse = await axios.get(
-      `https://attendme-backend.runasp.net/course/session/attendance/scanner/token/get?courseSessionId=${sessionId.value}`,
-      { headers: { Authorization: `Bearer ${getToken()}` } }
+    const response = await axios.get(
+      `https://attendme-backend.runasp.net/course/session/attendance/scanner/token/get`,
+      {
+        params: { courseSessionId: sessionId.value },
+        headers: { Authorization: `Bearer ${getToken()}` },
+      }
     );
-    qrCodeUrl.value = `https://attendme.runasp.net/#/teacher/scanner/${tokenResponse.data.token}`;
+
+    const token = response.data.token;
+    if (!token) {
+      console.error("Nie udało się pobrać tokenu skanera.");
+      return;
+    }
+
+    qrCodeUrl.value = `https://attendme.runasp.net/#/teacher/scanner/${token}`;
     showQrModal.value = true;
   } catch (error) {
     console.error("Błąd pobierania tokena skanera:", error);
   }
 }
+
 
 async function copyRegistrationLink(userId: number) {
   try {
@@ -227,7 +238,6 @@ async function copyRegistrationLink(userId: number) {
 
     const registrationLink = `http://localhost:5173/student/register-device/${token}`;
     await navigator.clipboard.writeText(registrationLink);
-    alert("Link rejestracyjny skopiowany do schowka!");
   } catch (err) {
     console.error("Błąd pobierania tokenu:", err);
   }
