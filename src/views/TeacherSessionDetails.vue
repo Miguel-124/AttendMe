@@ -95,7 +95,7 @@
                 </button>
               </td>
               <td class="center">
-                <button class="register-btn">
+                <button class="register-btn" @click="copyRegistrationLink(attender.attenderUserId)">
                   <i class="fas fa-qrcode"></i> Rejestruj
                 </button>
               </td>
@@ -208,6 +208,31 @@ async function openQrScanner() {
     console.error("Błąd pobierania tokena skanera:", error);
   }
 }
+
+async function copyRegistrationLink(userId: number) {
+  try {
+    const response = await axios.get(
+      `https://attendme-backend.runasp.net/user/device/register/token/get`,
+      {
+        params: { deviceUserId: userId },
+        headers: { Authorization: `Bearer ${getToken()}` },
+      }
+    );
+
+    const token = response.data.token;
+    if (!token) {
+      console.error("Nie udało się pobrać tokenu.");
+      return;
+    }
+
+    const registrationLink = `http://localhost:5173/student/register-device/${token}`;
+    await navigator.clipboard.writeText(registrationLink);
+    alert("Link rejestracyjny skopiowany do schowka!");
+  } catch (err) {
+    console.error("Błąd pobierania tokenu:", err);
+  }
+}
+
 
 // --- POBIERANIE LISTY SESJI ---
 async function fetchSessions() {

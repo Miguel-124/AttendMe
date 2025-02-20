@@ -12,9 +12,9 @@ const routes = [
   { path: "/", component: LoginView },
   { path: "/teacher", component: TeacherDashboard },
   { path: "/teacher/session/:id", component: TeacherSessionDetails },
-  { path: "/teacher/scanner", component: TeacherScanner },
+  { path: "/teacher/scanner:token", component: TeacherScanner },
   { path: "/student", component: StudentDashboard },
-  { path: "/student/register-device", component: StudentRegisterDevice },
+  { path: "/student/register-device/:token", component: StudentRegisterDevice },
   { path: "/session/:id", component: StudentSessionDetails },
   { path: "/student/generate-qr", component: StudentGenerateQRCode },
 ];
