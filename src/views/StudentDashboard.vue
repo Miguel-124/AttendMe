@@ -107,11 +107,11 @@ const showMenu = ref(false);
 const dateFilter = ref("all");
 const searchText = ref("");
 
-// 🔥 Zmienne do przechowywania danych użytkownika
+// Zmienne do przechowywania danych użytkownika
 const userName = ref("Ładowanie...");
 const userRole = ref("");
 
-// 🔹 Funkcja pobierająca dane użytkownika
+// Funkcja pobierająca dane użytkownika
 async function fetchUserData() {
   const storedData = sessionStorage.getItem("authData");
   if (!storedData) {
@@ -129,10 +129,10 @@ async function fetchUserData() {
 
     const userData = response.data;
 
-    // 🔥 Ustawiamy nazwę użytkownika
+    // Ustawiamy nazwę użytkownika
     userName.value = `${userData.name} ${userData.surname}`;
 
-    // 🔥 Ustalanie roli użytkownika
+    // Ustalanie roli użytkownika
     if (userData.isTeacher) {
       userRole.value = "Nauczyciel";
     } else if (userData.isStudent) {
@@ -221,16 +221,16 @@ async function fetchSessions() {
   }
 }
 
-/*    Automatyczne pobieranie nowych danych po zmianie filtra */
+/* Automatyczne pobieranie nowych danych po zmianie filtra */
 watch(dateFilter, fetchSessions);
 
-// 🔹 Pobranie danych użytkownika i sesji po załadowaniu strony
+// Pobranie danych użytkownika i sesji po załadowaniu strony
 onMounted(async () => {
   await fetchUserData();
   await fetchSessions();
 });
 
-/*    Filtrowanie listy sesji na podstawie wyszukiwarki */
+/* Filtrowanie listy sesji na podstawie wyszukiwarki */
 const filteredSessions = computed(() => {
   return sessions.value.filter((session) => {
     const matchesSearch =

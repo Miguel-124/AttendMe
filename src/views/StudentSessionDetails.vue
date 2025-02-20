@@ -6,7 +6,7 @@
           <img src="@/assets/logo.png" alt="AttendMe logo" />
         </a>
 
-        <!-- 🔥 Hamburger Menu -->
+        <!-- Hamburger Menu -->
         <div class="navbar-right">
           <div class="dropdown">
             <button class="menu-button" @click="toggleMenu">☰</button>
@@ -179,10 +179,10 @@ async function fetchUserData() {
 
     const userData = response.data;
 
-    // 🔥 Ustawiamy nazwę użytkownika
+    // Ustawiamy nazwę użytkownika
     userName.value = `${userData.name} ${userData.surname}`;
 
-    // 🔥 Ustalanie roli użytkownika
+    // Ustalanie roli użytkownika
     if (userData.isTeacher) {
       userRole.value = "Nauczyciel";
     } else if (userData.isStudent) {
@@ -314,7 +314,7 @@ onMounted(() => {
   font-weight: bold;
 }
 
-/* 🔥 Nagłówek - poprawienie układu i czcionki */
+/* Nagłówek */
 .session-header {
   display: flex;
   justify-content: space-between;
@@ -322,7 +322,7 @@ onMounted(() => {
   margin-bottom: 10px;
 }
 
-/* 🔹 Styl dla nazwy zajęć */
+/* Styl dla nazwy zajęć */
 .course-title {
   font-size: 22px;
   font-weight: bold;
@@ -330,7 +330,7 @@ onMounted(() => {
   color: #000;
 }
 
-/* 🔹 Obecność - poprawienie czcionki i koloru */
+/* Obecność */
 .attendance-status {
   text-align: right;
 }
@@ -343,7 +343,7 @@ onMounted(() => {
   color: #000;
 }
 
-/* 🔹 Tekst szczegółów - teraz span (np. "Termin:") jest normalny, a wartość pogrubiona */
+/* Tekst szczegółów sesji */
 .session-info {
   font-size: 16px;
   color: #000;
@@ -358,7 +358,7 @@ onMounted(() => {
   font-weight: bold;
 }
 
-/* 🔹 Guziki */
+/* Guziki */
 .btn-present {
   background: #007b45;
   color: white;
@@ -387,7 +387,7 @@ onMounted(() => {
   margin-bottom: 10px;
 }
 
-/* 🔹 Pasek postępu */
+/* Pasek postępu */
 .progress-text {
   font-size: 14px;
   font-weight: normal;
