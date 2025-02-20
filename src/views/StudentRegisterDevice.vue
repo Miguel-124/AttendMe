@@ -1,35 +1,40 @@
 <template>
   <div class="registration-container">
+    <!-- 🔹 Logo -->
     <router-link to="/">
       <img src="@/assets/logo.png" alt="AttendMe logo" class="logo" />
     </router-link>
 
+    <h1 class="title">{{ registered ? "Urządzenie zarejestrowane" : "Rejestracja urządzenia" }}</h1>
     
-    <h1 class="title">Rejestracja urządzenia</h1>
-    <p class="subtitle">
+    <p class="subtitle" v-if="!registered">
       Rejestrujesz urządzenie, którego będziesz używać do sprawdzania obecności.
       Uzupełnij poniższe dane i naciśnij przycisk "Rejestruj".
     </p>
+    <p class="subtitle" v-else>
+      Przejdź do skanowania obecności lub do pulpitu (wymagane logowanie).
+    </p>
 
+    <!-- 🔥 Komunikaty -->
     <div v-if="loading" class="loading">Rejestracja urządzenia...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
 
-    <div v-if="!loading && !error" class="form-container">
+    <!-- 🔹 Formularz rejestracji -->
+    <div v-if="!loading && !error && !registered" class="form-container">
       <form @submit.prevent="registerDevice">
         <label for="deviceName">Nazwa urządzenia</label>
         <input id="deviceName" v-model="deviceName" type="text" placeholder="Wprowadź nazwę urządzenia" required />
 
-        <label for="firstName">Twoje imię</label>
-        <input id="firstName" v-model="firstName" type="text" placeholder="Wprowadź swoje imię" required />
-
-        <label for="lastName">Twoje nazwisko</label>
-        <input id="lastName" v-model="lastName" type="text" placeholder="Wprowadź swoje nazwisko" required />
-
-        <label for="studentId">Twój numer albumu</label>
-        <input id="studentId" v-model="studentId" type="text" placeholder="Wprowadź numer albumu" required />
-
         <button type="submit" class="submit-button">Zarejestruj</button>
       </form>
+    </div>
+
+    <!-- 🔥 Po rejestracji -->
+    <div v-if="registered" class="options-container">
+      <button class="scan-button" @click="goToScan">Skanuj obecność</button>
+      <button class="dashboard-button" @click="goToDashboard">Otwórz pulpit</button>
+      <button class="reset-button" @click="resetDevice">Resetuj</button>
+      <p v-if="resetMessage" class="reset-message">{{ resetMessage }}</p>
     </div>
   </div>
 </template>
@@ -44,13 +49,12 @@ const router = useRouter();
 
 const token = ref<string>("");
 const deviceName = ref("");
-const firstName = ref("");
-const lastName = ref("");
-const studentId = ref("");
+const registered = ref<boolean>(false);
 const error = ref<string | null>(null);
 const loading = ref<boolean>(false);
+const resetMessage = ref<string | null>(null);
 
-// Pobranie tokena z URL
+// 🔥 Pobranie tokena z URL
 onMounted(() => {
   token.value = route.params.token as string || "";
   if (!token.value) {
@@ -58,7 +62,7 @@ onMounted(() => {
   }
 });
 
-// Wysłanie żądania do backendu w celu rejestracji urządzenia
+// 🔥 Wysłanie żądania do backendu w celu rejestracji urządzenia
 const registerDevice = async () => {
   if (!token.value || !deviceName.value) {
     error.value = "Wprowadź nazwę urządzenia!";
@@ -74,24 +78,46 @@ const registerDevice = async () => {
 
     const newToken = response.data.token;
     localStorage.setItem("deviceToken", newToken);
-    alert("Urządzenie zostało pomyślnie zarejestrowane!");
-    router.push("/student/dashboard");
-  } catch (err: unknown) {
-  console.error("Błąd rejestracji:", err);
-
-  // Sprawdzenie, czy błąd jest obiektem i zawiera `response`
-  if (err instanceof Error && "response" in err) {
-    const axiosError = err as { response?: { data?: { message?: string } } };
-    error.value = axiosError.response?.data?.message || "Błąd rejestracji urządzenia. Spróbuj ponownie.";
-  } else {
-    error.value = "Wystąpił nieznany błąd.";
+    registered.value = true;
+  } catch (err) {
+    console.error("Błąd rejestracji:", err);
+    error.value = "Błąd rejestracji urządzenia. Spróbuj ponownie.";
+  } finally {
+    loading.value = false;
   }
-} finally {
-  loading.value = false;
-}
 };
 
+// 🔥 Przejdź do skanowania obecności
+const goToScan = () => {
+  window.location.href = "https://attendme.runasp.net/#/student/generate-qr";
+};
 
+// 🔥 Przejdź do pulpitu (aktualnie placeholder `#`)
+const goToDashboard = () => {
+  router.push("/student/dashboard");
+};
+
+// 🔥 Resetowanie urządzenia
+const resetDevice = async () => {
+  try {
+    const token = localStorage.getItem("deviceToken");
+    if (!token) {
+      resetMessage.value = "Brak tokenu urządzenia.";
+      return;
+    }
+
+    await axios.post("https://attendme-backend.runasp.net/user/device/reset", {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    resetMessage.value = "Pomyślnie zresetowano urządzenie!";
+    localStorage.removeItem("deviceToken");
+    registered.value = false;
+  } catch (err) {
+    console.error("Błąd resetowania urządzenia:", err);
+    resetMessage.value = "Wystąpił błąd przy resetowaniu urządzenia.";
+  }
+};
 </script>
 
 <style scoped>
@@ -121,6 +147,13 @@ const registerDevice = async () => {
   margin-bottom: 20px;
 }
 
+.loading, .error {
+  font-size: 18px;
+  font-weight: bold;
+  color: red;
+  margin-top: 20px;
+}
+
 .form-container {
   background: #f8f9fa;
   padding: 20px;
@@ -129,42 +162,55 @@ const registerDevice = async () => {
   text-align: left;
 }
 
-label {
-  font-weight: bold;
-  display: block;
-  margin: 10px 0 5px;
-  color: #333;
+/* 🔥 Przyciski po rejestracji */
+.options-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-input {
+.scan-button, .dashboard-button, .reset-button {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-.submit-button {
-  width: 100%;
-  background-color: #007b45;
-  color: white;
   font-size: 16px;
   padding: 12px;
   border: none;
   border-radius: 5px;
-  margin-top: 20px;
   cursor: pointer;
   font-weight: bold;
 }
 
-.loading, .error {
-  font-size: 18px;
-  font-weight: bold;
-  color: red;
-  margin-top: 20px;
+.scan-button {
+  background-color: #007b45;
+  color: white;
 }
 
-.submit-button:hover {
+.dashboard-button {
+  background-color: #f5a623;
+  color: white;
+}
+
+.reset-button {
+  background-color: #d9534f;
+  color: white;
+}
+
+.scan-button:hover {
   background-color: #005c34;
+}
+
+.dashboard-button:hover {
+  background-color: #d98c1f;
+}
+
+.reset-button:hover {
+  background-color: #c9302c;
+}
+
+.reset-message {
+  margin-top: 10px;
+  font-size: 14px;
+  color: green;
+  font-weight: bold;
 }
 </style>
