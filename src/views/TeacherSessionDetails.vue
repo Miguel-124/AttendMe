@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/require-toggle-inside-transition -->
 <template>
   <div class="teacher-dashboard">
     <header class="navbar">
@@ -75,7 +76,7 @@
                     class="fas"
                     :class="attender.wasUserPresent ? 'fa-times' : 'fa-check'"
                   ></i>
-                  {{ attender.wasUserPresent ? "Odnacz" : "Zaznacz" }}
+                  {{ attender.wasUserPresent ? "Zanacz" : "Odznacz" }}
                 </button>
               </td>
               <!-- PRZYCISK URZĄDZENIE -->
@@ -265,7 +266,7 @@ async function toggleAttendance(attender: Attendance) {
   if (!token) return;
   const newStatus = !attender.wasUserPresent;
   try {
-    const response = await axios.get(
+    await axios.get(
       `https://attendme-backend.runasp.net/course/session/attendance/toggle`,
       {
         params: {
@@ -330,7 +331,7 @@ async function resetDevice() {
     const token = getToken();
     if (!token) return;
     const deviceUserId = selectedAttender.value.attenderUserId;
-    const response = await axios.post(
+    await axios.post(
       "https://attendme-backend.runasp.net/user/device/reset",
       {},
       {
