@@ -77,13 +77,10 @@ async function login() {
     );
 
     // Pobranie danych użytkownika
-    console.log(user);
     // Przekierowanie w zależności od roli użytkownika
     if (user.data.isStudent) {
-      console.log("Przekierowanie do /student");
       router.push("/student");
     } else if (user.data.isTeacher) {
-      console.log("Przekierowanie do /teacher");
       router.push("/teacher");
     } else {
       throw new Error("Nieznana rola użytkownika");

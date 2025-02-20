@@ -23,6 +23,8 @@
         </div>
       </div>
     </header>
+
+    <!-- KARTA ZAJĘĆ -->
     <div class="lesson-card" v-if="session">
       <h2 class="lesson-title">{{ session.courseName }}</h2>
       <div class="lesson-details">
@@ -36,6 +38,7 @@
       </div>
     </div>
 
+    <!-- LISTA OBECNOŚCI -->
     <div>
       <div class="attendance-container">
         <h2 class="attendance-title">Lista obecności</h2>
@@ -55,7 +58,11 @@
               v-for="attender in attendanceList"
               :key="attender.attenderUserId"
             >
-              <td>{{ attender.userName }} {{ attender.userSurname }}</td>
+              <td>
+                <strong
+                  >{{ attender.userName }} {{ attender.userSurname }}</strong
+                >
+              </td>
               <td class="center">{{ attender.studentAlbumIdNumber }}</td>
               <td class="center">
                 <span :class="attender.wasUserPresent ? 'present' : 'absent'">
@@ -71,9 +78,14 @@
                   {{ attender.wasUserPresent ? "Odnacz" : "Zaznacz" }}
                 </button>
               </td>
+              <!-- PRZYCISK URZĄDZENIE -->
               <td class="center">
-                <button class="device-btn">
-                  <i class="fas fa-eye"></i> Zobacz
+                <button
+                  :class="getDeviceButtonClass(attender)"
+                  @click="openDeviceModal(attender)"
+                >
+                  <i class="fas fa-eye"></i>
+                  {{ getDeviceButtonText(attender) }}
                 </button>
               </td>
               <td class="center">
@@ -86,6 +98,33 @@
         </table>
       </div>
     </div>
+
+    <!-- MODAL URZĄDZENIA Z TRANSITION (płynne otwieranie/zamykanie) -->
+    <transition name="modal-fade">
+      <div v-if="showDeviceModalFlag" class="modal-backdrop">
+        <transition name="modal-scale">
+          <div class="modal-content">
+            <!-- Ikonka X w rogu -->
+            <div class="close-button" @click="closeDeviceModal">×</div>
+
+            <h2 class="modal-title">
+              {{ selectedAttender?.userName }}
+              {{ selectedAttender?.userSurname }}
+            </h2>
+            <p v-if="deviceTokenLoading">Ładowanie urządzenia...</p>
+            <p v-else class="device-name">
+              {{ deviceName }}
+            </p>
+            <p v-if="resetMessage" class="reset-message">
+              {{ resetMessage }}
+            </p>
+            <div class="modal-actions">
+              <button class="reset-btn" @click="resetDevice">Resetuj</button>
+            </div>
+          </div>
+        </transition>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -106,6 +145,13 @@ const userName = ref("");
 const userRole = ref("");
 const attendanceList = ref<Attendance[]>([]);
 
+// --- MODAL URZĄDZENIA ---
+const showDeviceModalFlag = ref(false);
+const selectedAttender = ref<Attendance | null>(null);
+const deviceName = ref("");
+const deviceTokenLoading = ref(false);
+const resetMessage = ref("");
+
 interface Attendance {
   attendanceLogId: number | null;
   courseSessionId: number;
@@ -115,6 +161,7 @@ interface Attendance {
   studentAlbumIdNumber: number;
   attendanceLogMinDateCreated: string | null;
   wasUserPresent: boolean;
+  deviceName?: string;
 }
 
 interface Session {
@@ -126,6 +173,7 @@ interface Session {
   dateEnd: string;
 }
 
+// --- POBIERANIE LISTY SESJI ---
 async function fetchSessions() {
   try {
     const response = await axios.post(
@@ -135,9 +183,7 @@ async function fetchSessions() {
         pageSize: 999999,
       },
       {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
+        headers: { Authorization: `Bearer ${getToken()}` },
       }
     );
     session.value =
@@ -149,35 +195,31 @@ async function fetchSessions() {
   }
 }
 
+// --- POBIERANIE DANYCH ZALOGOWANEGO UŻYTKOWNIKA ---
 async function fetchUserData() {
   try {
     const response = await axios.get(
       "https://attendme-backend.runasp.net/user/get",
       {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
+        headers: { Authorization: `Bearer ${getToken()}` },
       }
     );
-
     const userData = response.data;
     userName.value = `${userData.name} ${userData.surname}`;
-
-    if (userData.isTeacher) {
-      userRole.value = "Nauczyciel";
-    } else if (userData.isStudent) {
-      userRole.value = "Uczeń";
-    } else if (userData.isAdmin) {
-      userRole.value = "Administrator";
-    } else {
-      userRole.value = "Nieznana rola";
-    }
+    userRole.value = userData.isTeacher
+      ? "Nauczyciel"
+      : userData.isStudent
+        ? "Uczeń"
+        : userData.isAdmin
+          ? "Administrator"
+          : "Nieznana rola";
   } catch (error) {
     console.error("Błąd pobierania danych użytkownika:", error);
     userName.value = "Błąd ładowania";
   }
 }
 
+// --- POBIERANIE LISTY OBECNOŚCI ---
 async function fetchAttendanceList() {
   try {
     const response = await axios.get<Attendance[]>(
@@ -190,12 +232,38 @@ async function fetchAttendanceList() {
   }
 }
 
+// --- POBIERANIE INFORMACJI O URZĄDZENIU DLA KAŻDEGO UCZNIA ---
+async function fetchDevicesForAttendance() {
+  await Promise.all(
+    attendanceList.value.map(async (attender) => {
+      try {
+        const token = getToken();
+        if (!token) return;
+        const response = await axios.get(
+          "https://attendme-backend.runasp.net/user/get",
+          {
+            params: { userId: attender.attenderUserId },
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const data = response.data;
+        attender.deviceName =
+          data.deviceName && data.deviceName.length > 0
+            ? data.deviceName
+            : "Brak zarejestrowanego urządzenia";
+      } catch (error) {
+        console.error("Błąd pobierania urządzenia:", error);
+        attender.deviceName = "Błąd lub brak urządzenia";
+      }
+    })
+  );
+}
+
+// --- ZMIANA STATUSU OBECNOŚCI ---
 async function toggleAttendance(attender: Attendance) {
   const token = getToken();
   if (!token) return;
-
-  const newStatus = !attender.wasUserPresent; // Zmieniamy obecność na przeciwną
-
+  const newStatus = !attender.wasUserPresent;
   try {
     const response = await axios.get(
       `https://attendme-backend.runasp.net/course/session/attendance/toggle`,
@@ -205,21 +273,110 @@ async function toggleAttendance(attender: Attendance) {
           courseSessionId: sessionId.value,
           addOrRemove: newStatus,
         },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       }
     );
-
-    console.log("Odpowiedź API:", response.data);
-
-    // Aktualizacja lokalnej listy obecności
     attender.wasUserPresent = newStatus;
   } catch (error) {
     console.error("Błąd zmiany statusu obecności:", error);
   }
 }
 
+// --- OTWIERANIE MODALA URZĄDZENIA ---
+function openDeviceModal(attender: Attendance) {
+  selectedAttender.value = attender;
+  showDeviceModalFlag.value = true;
+  resetMessage.value = "";
+  document.body.classList.add("modal-open");
+
+  if (attender.deviceName) {
+    deviceName.value = attender.deviceName;
+    deviceTokenLoading.value = false;
+  } else {
+    deviceTokenLoading.value = true;
+    getUserDeviceName(attender.attenderUserId);
+  }
+}
+
+// --- POBIERANIE NAZWY URZĄDZENIA DANEGO UCZNIA (fallback) ---
+async function getUserDeviceName(userId: number) {
+  try {
+    const token = getToken();
+    if (!token) return;
+    const response = await axios.get(
+      "https://attendme-backend.runasp.net/user/get",
+      {
+        params: { userId },
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    const data = response.data;
+    deviceName.value =
+      data.deviceName && data.deviceName.length > 0
+        ? data.deviceName
+        : "Brak zarejestrowanego urządzenia";
+  } catch (error) {
+    console.error("Błąd pobierania urządzenia:", error);
+    deviceName.value = "Błąd lub brak urządzenia";
+  } finally {
+    deviceTokenLoading.value = false;
+  }
+}
+
+// --- RESET URZĄDZENIA ---
+async function resetDevice() {
+  try {
+    if (!selectedAttender.value) return;
+    const token = getToken();
+    if (!token) return;
+    const deviceUserId = selectedAttender.value.attenderUserId;
+    const response = await axios.post(
+      "https://attendme-backend.runasp.net/user/device/reset",
+      {},
+      {
+        params: { deviceUserId },
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    resetMessage.value = "Pomyślnie zresetowano urządzenie!";
+  } catch (error) {
+    console.error("Błąd resetowania urządzenia:", error);
+    resetMessage.value = "Wystąpił błąd przy resetowaniu urządzenia.";
+  }
+}
+
+// --- ZAMYKANIE MODALA URZĄDZENIA ---
+function closeDeviceModal() {
+  showDeviceModalFlag.value = false;
+  selectedAttender.value = null;
+  resetMessage.value = "";
+  document.body.classList.remove("modal-open");
+}
+
+// --- FUNKCJE DO OKREŚLENIA KLASY I TEKSTU PRZYCISKU URZĄDZENIA ---
+function getDeviceButtonClass(attender: Attendance) {
+  if (
+    attender.deviceName &&
+    attender.deviceName !== "Brak zarejestrowanego urządzenia"
+  ) {
+    return "device-btn yellow";
+  } else {
+    return "device-btn gray";
+  }
+}
+
+function getDeviceButtonText(attender: Attendance) {
+  if (
+    attender.deviceName &&
+    attender.deviceName !== "Brak zarejestrowanego urządzenia"
+  ) {
+    return "Zobacz";
+  } else {
+    return "Dodaj";
+  }
+}
+
+// --- POMOCNICZE ---
 function getToken() {
   const storedData = sessionStorage.getItem("authData");
   if (!storedData) {
@@ -253,6 +410,7 @@ onMounted(async () => {
   await fetchUserData();
   await fetchAttendanceList();
   await fetchSessions();
+  await fetchDevicesForAttendance();
 });
 </script>
 
@@ -401,7 +559,7 @@ onMounted(async () => {
 }
 
 button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 10px 16px;
@@ -419,16 +577,29 @@ button {
 }
 
 .toggle-btn:hover {
-  background: linear-gradient(135deg, #0056b3, #0096f5);
+  transform: scale(1.05);
 }
 
 .device-btn {
+  padding: 10px 16px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.device-btn.yellow {
   background: linear-gradient(135deg, #ffc107, #ffdf6b);
   color: black;
 }
-
+.device-btn.gray {
+  background: #cccccc;
+  color: white;
+}
 .device-btn:hover {
-  background: linear-gradient(135deg, #e0a800, #ffd500);
+  transform: scale(1.05);
 }
 
 .register-btn {
@@ -437,7 +608,7 @@ button {
 }
 
 .register-btn:hover {
-  background: linear-gradient(135deg, #212188, #44c55b);
+  transform: scale(1.05);
 }
 
 i {
@@ -473,5 +644,98 @@ i {
 
 .lesson-details strong {
   color: #007bff;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 30px 20px;
+  border-radius: 12px;
+  min-width: 300px;
+  max-width: 500px;
+  position: relative;
+  text-align: center;
+  color: black;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+.modal-title {
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.device-name {
+  display: inline-block;
+  margin: 10px 0;
+  padding: 10px;
+  border: 2px dashed #007bff;
+  border-radius: 8px;
+  font-weight: 500;
+  width: 100%;
+}
+
+.reset-message {
+  margin-top: 10px;
+  color: #28a745;
+  font-weight: bold;
+}
+
+.modal-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.reset-btn {
+  background: linear-gradient(135deg, #dc3545, #ff6b6b);
+  color: #fff;
+  border-radius: 30px;
+  padding: 10px 20px;
+  transition: transform 0.2s ease;
+}
+.reset-btn:hover {
+  background: linear-gradient(135deg, #b52d2d, #ff3f3f);
+  transform: scale(1.05);
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-fade-enter,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.modal-scale-enter-active,
+.modal-scale-leave-active {
+  transition: transform 0.3s ease;
+}
+.modal-scale-enter,
+.modal-scale-leave-to {
+  transform: scale(0.8);
+}
+
+.modal-open {
+  overflow-y: hidden !important;
 }
 </style>

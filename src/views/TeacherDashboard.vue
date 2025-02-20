@@ -132,10 +132,8 @@ async function fetchUserData() {
 
     const userData = response.data;
 
-    // Ustawiamy nazwę użytkownika
     userName.value = `${userData.name} ${userData.surname}`;
 
-    // Ustalanie roli użytkownika
     if (userData.isTeacher) {
       userRole.value = "Nauczyciel";
     } else if (userData.isStudent) {
@@ -153,14 +151,6 @@ async function fetchUserData() {
 
 // Funkcja pobierająca sesje
 async function fetchSessions() {
-  // const storedData = sessionStorage.getItem("authData");
-  // if (!storedData) {
-  //   console.error("Brak danych autoryzacyjnych w sessionStorage");
-  //   return;
-  // }
-  // const authData = JSON.parse(storedData);
-
-  // Ustalanie zakresu daty na podstawie `dateFilter`
   const now = new Date();
   let dateStart = null;
   let dateEnd = null;
@@ -226,7 +216,6 @@ async function fetchSessions() {
 // Automatyczne pobieranie nowych danych po zmianie filtra
 watch(dateFilter, fetchSessions);
 
-// Pobranie danych użytkownika i sesji po załadowaniu strony
 onMounted(async () => {
   await fetchUserData();
   await fetchSessions();
@@ -251,7 +240,6 @@ const filteredSessions = computed(() => {
   });
 });
 
-// Formatowanie daty
 function formatSessionDate(start: string, end: string): string {
   const startDate = dayjs(start);
   const endDate = dayjs(end);
