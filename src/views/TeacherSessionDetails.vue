@@ -141,21 +141,19 @@
             <div class="close-button" @click="showQrModal = false">×</div>
             <h2 class="modal-title">Skaner obecności</h2>
             <p>
-              Do sprawdzania obecności wymagane jest urządzenie wyposażone w
-              kamerę (tablet lub telefon). Zeskanuj na nim poniższy kod QR lub
-              otwórz adres url, który możesz skopiować poniższym przyciskiem.
-              Sprawdzenie obecności polega na umieszczeniu w polu widzenia
-              kamery skanera kodu QR wygnerowanego na ekranie telefonu
-              uczestnika.
+              Do sprawdzania obecności wymagane jest urządzenie wyposażone w kamerę
+              (tablet lub telefon). Zeskanuj na nim poniższy kod QR lub otwórz adres
+              url, który możesz skopiować poniższym przyciskiem.
             </p>
-            <img
-              :src="
-                'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' +
-                qrCodeUrl
-              "
+            
+            <!-- Generowanie dynamicznego kodu QR -->
+            <img class="qrcode"
+              :src="`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrCodeUrl}`"
               alt="QR Code"
             />
-            <button @click="copyQrCodeUrl" class="reset-btn">
+
+            <!-- Przycisk do kopiowania linku -->
+            <button @click="copyQrCodeUrl" class="reset-btn copy-scan-link">
               Skopiuj adres
             </button>
           </div>
@@ -229,12 +227,18 @@ async function openQrScanner() {
       return;
     }
 
-    qrCodeUrl.value = `https://attendme.runasp.net/#/teacher/scanner/${token}`;
+    // Automatycznie wykrywanie adresu hosta i portu
+    const baseUrl = window.location.origin;
+
+    // Generowanie linku na podstawie środowiska (automatyczny localhost)
+    qrCodeUrl.value = `${baseUrl}/teacher/scanner/${token}`;
     showQrModal.value = true;
   } catch (error) {
     console.error("Błąd pobierania tokena skanera:", error);
   }
 }
+
+
 
 
 async function copyRegistrationLink(userId: number) {
@@ -459,7 +463,7 @@ function getDeviceButtonText(attender: Attendance) {
   ) {
     return "Zobacz";
   } else {
-    return "Dodaj";
+    return "Brak";
   }
 }
 
@@ -529,6 +533,12 @@ function copyQrCodeUrl() {
 .logo img {
   height: 100px;
   border-radius: 20%;
+}
+
+.qrcode {
+  padding: 20px;
+  width: 100%;
+  height: 100%;
 }
 
 .navbar-right {
