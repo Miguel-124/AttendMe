@@ -254,8 +254,11 @@ async function copyRegistrationLink(userId: number) {
       console.error("Nie udało się pobrać tokenu.");
       return;
     }
+    // Automatycznie wykrywanie adresu hosta i portu
+    const baseUrl = window.location.origin;
 
-    const registrationLink = `http://localhost:5173/student/register-device/${token}`;
+    // Generowanie linku na podstawie środowiska (automatyczny localhost)
+    const registrationLink = `${baseUrl}/student/register-device/${token}`;
     await navigator.clipboard.writeText(registrationLink);
   } catch (err) {
     console.error("Błąd pobierania tokenu:", err);
