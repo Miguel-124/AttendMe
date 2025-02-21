@@ -1,24 +1,25 @@
 <template>
   <div class="scanner-container">
-    <!-- 🔹 Logo na górze -->
     <router-link to="/">
       <img src="@/assets/logo.png" alt="AttendMe logo" class="logo" />
     </router-link>
 
     <h1 class="title">Skaner QR</h1>
 
-    <!-- 🔥 Komunikaty o statusie -->
     <div v-if="loading" class="loading">Ładowanie skanera...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
 
-    <!-- 🔹 Kamera do skanowania QR -->
     <div v-if="!loading && !error" class="scanner">
-      <qrcode-stream @decode="onScanSuccess" @init="onCameraInit"></qrcode-stream>
+      <qrcode-stream
+        @decode="onScanSuccess"
+        @init="onCameraInit"
+      ></qrcode-stream>
     </div>
 
-    <!-- 🔹 Wynik skanowania -->
     <div v-if="scannedData" class="result">
-      <p>Zeskanowany kod: <strong>{{ scannedData }}</strong></p>
+      <p>
+        Zeskanowany kod: <strong>{{ scannedData }}</strong>
+      </p>
     </div>
   </div>
 </template>
@@ -36,18 +37,21 @@ const error = ref<string | null>(null);
 const scannedData = ref<string | null>(null);
 const errorMessage = ref<string | null>(null);
 
-// 🔥 Pobranie tokena z URL
 onMounted(() => {
-  token.value = route.params.token as string || "";
+  token.value = (route.params.token as string) || "";
   if (!token.value) {
     errorMessage.value = "Brak tokenu rejestracyjnego w adresie URL.";
   }
 });
 
-// 🔥 Obsługa poprawnego skanowania QR
 const onScanSuccess = async (result: string) => {
   scannedData.value = result;
   console.log("Zeskanowany kod:", result);
+
+  if (!token.value) {
+    error.value = "Brak tokenu skanera. Nie można przesłać skanu.";
+    return;
+  }
 
   if (!token.value) {
     error.value = "Brak tokenu skanera. Nie można przesłać skanu.";
@@ -58,7 +62,14 @@ const onScanSuccess = async (result: string) => {
     await axios.post(
       "https://attendme-backend.runasp.net/course/session/attendance/scan",
       {
-        token: token.value,  // ✅ Przekazanie tokenu z URL
+        token: token.value,
+        scannedData: result,
+      }
+    );
+    await axios.post(
+      "https://attendme-backend.runasp.net/course/session/attendance/scan",
+      {
+        token: token.value, // ✅ Przekazanie tokenu z URL
         scannedData: result, // ✅ Przekazanie zeskanowanego kodu
       },
       {
@@ -73,7 +84,6 @@ const onScanSuccess = async (result: string) => {
   }
 };
 
-// 🔹 Obsługa błędów kamery
 const onCameraInit = (promise: Promise<void>) => {
   promise.catch(() => {
     error.value = "Nie można uzyskać dostępu do kamery.";
@@ -114,7 +124,8 @@ function getToken() {
   margin-bottom: 20px;
 }
 
-.loading, .error {
+.loading,
+.error {
   font-size: 18px;
   font-weight: bold;
   color: red;
