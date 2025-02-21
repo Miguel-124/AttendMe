@@ -215,11 +215,14 @@ const resetDevice = async () => {
 };
 
 const goToScan = () => {
-  window.location.href = "https://attendme.runasp.net/#/student/generate-qr";
+  const baseUrl = window.location.origin;
+
+// Generowanie linku na podstawie środowiska (automatyczny localhost)
+  window.location.href = `${baseUrl}/student/generate-qr`;
 };
 
 const goToDashboard = () => {
-  router.push("/student/dashboard");
+  router.push("/#");
 };
 </script>
 
