@@ -141,13 +141,14 @@
             <div class="close-button" @click="showQrModal = false">×</div>
             <h2 class="modal-title">Skaner obecności</h2>
             <p>
-              Do sprawdzania obecności wymagane jest urządzenie wyposażone w kamerę
-              (tablet lub telefon). Zeskanuj na nim poniższy kod QR lub otwórz adres
-              url, który możesz skopiować poniższym przyciskiem.
+              Do sprawdzania obecności wymagane jest urządzenie wyposażone w
+              kamerę (tablet lub telefon). Zeskanuj na nim poniższy kod QR lub
+              otwórz adres url, który możesz skopiować poniższym przyciskiem.
             </p>
-            
+
             <!-- Generowanie dynamicznego kodu QR -->
-            <img class="qrcode"
+            <img
+              class="qrcode"
               :src="`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrCodeUrl}`"
               alt="QR Code"
             />
@@ -237,9 +238,6 @@ async function openQrScanner() {
     console.error("Błąd pobierania tokena skanera:", error);
   }
 }
-
-
-
 
 async function copyRegistrationLink(userId: number) {
   try {
