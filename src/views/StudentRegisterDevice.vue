@@ -4,19 +4,27 @@
       <img src="@/assets/logo.png" alt="AttendMe logo" class="logo" />
     </router-link>
 
-    
-    <h1 class="title">Rejestracja urządzenia</h1>
-    <p class="subtitle">
-      Rejestrujesz urządzenie, którego będziesz używać do sprawdzania obecności.
-      Uzupełnij poniższe dane i naciśnij przycisk "Rejestruj".
-    </p>
-
-      <!-- Komunikaty błędów i sukcesu -->
+    <!-- Komunikaty błędów i sukcesu -->
     <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
     <div v-if="successMessage" class="success">{{ successMessage }}</div>
     <div v-if="loading" class="loading">Trwa rejestracja urządzenia...</div>
 
-    <div class="form-container">
+    <div v-if="successMessage" class="success-container">
+      <h1 class="title">Urządzenie zarejestrowane</h1>
+      <p class="subtitle">Przejdź do skanowania obecności lub do pulpitu (wymagane logowanie).</p>
+
+      <button class="scan-button" @click="goToScan">Skanuj obecność</button>
+      <button class="dashboard-button" @click="goToDashboard">Otwórz pulpit</button>
+      <button class="reset-button" @click="resetDevice">Resetuj</button>
+      <p v-if="resetMessage" class="reset-message">{{ resetMessage }}</p>
+    </div>
+
+    <div v-if="!successMessage" class="form-container">
+      <h1 class="title register">Rejestracja urządzenia</h1>
+      <p class="subtitle register">
+      Rejestrujesz urządzenie, którego będziesz używać do sprawdzania obecności.
+      Uzupełnij poniższe dane i naciśnij przycisk "Rejestruj".
+      </p>
       <form @submit.prevent="registerDevice">
         <label for="deviceName">Nazwa urządzenia</label>
         <input id="deviceName" v-model="deviceName" type="text" placeholder="Wprowadź nazwę urządzenia" required />
@@ -40,18 +48,21 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import axios from "axios"
 
 const route = useRoute();
+const router = useRouter();
 const token = ref<string>("");
 
 const deviceName = ref("");
 const firstName = ref("");
 const lastName = ref("");
 const studentId = ref("");
+
 const errorMessage = ref<string | null>(null);
 const successMessage = ref<string | null>(null);
+const resetMessage = ref<string | null>(null);
 const loading = ref<boolean>(false);
 
 // Pobranie tokena z URL po zamontowaniu komponentu
@@ -96,9 +107,39 @@ const registerDevice = async () => {
   }
 };
 
+// ✅ Przekierowanie do skanowania obecności
+const goToScan = () => {
+  window.location.href = "https://attendme.runasp.net/#/student/generate-qr";
+};
 
+// ✅ Przekierowanie do pulpitu studenta
+const goToDashboard = () => {
+  router.push("/student/dashboard");
+};
 
+// ✅ Funkcja resetowania urządzenia
+const resetDevice = async () => {
+  try {
+    const storedToken = token.value;
+    if (!storedToken) {
+      resetMessage.value = "Brak tokenu urządzenia.";
+      return;
+    }
 
+    await axios.post(
+      "https://attendme-backend.runasp.net/user/device/reset",
+      {},
+      {
+        headers: { Authorization: `Bearer ${storedToken}` },
+      }
+    );
+
+    resetMessage.value = "Urządzenie zostało zresetowane.";
+  } catch (error) {
+    console.error("Błąd resetowania urządzenia:", error);
+    resetMessage.value = "Nie udało się zresetować urządzenia.";
+  }
+};
 </script>
 
 <style scoped>
@@ -168,6 +209,11 @@ input {
   background-color: #005c34;
 }
 
+/* Style dla sekcji po rejestracji */
+.success-container {
+  text-align: center;
+}
+
 .error {
   color: red;
   font-weight: bold;
@@ -178,6 +224,48 @@ input {
   color: green;
   font-weight: bold;
   margin-bottom: 10px;
+}
+
+.scan-button {
+  background-color: #007b45;
+  color: white;
+  width: 100%;
+  font-size: 16px;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.dashboard-button {
+  background-color: #f5a623;
+  color: white;
+  width: 100%;
+  font-size: 16px;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.register {
+  text-align: center;
+  display: block;
+  margin: 0 auto;
+}
+
+.reset-button {
+  background-color: #d9534f;
+  color: white;
+  width: 100%;
+  font-size: 16px;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  margin-top: 10px;
+  cursor: pointer;
 }
 
 </style>
