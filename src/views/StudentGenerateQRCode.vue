@@ -1,19 +1,18 @@
 <template>
-  <div class="registration-container">
+  <div class="qr-container">
     <router-link to="/">
       <img src="@/assets/logo.png" alt="AttendMe logo" class="logo" />
     </router-link>
-
-    <!-- Komunikaty błędów i stanu -->
-    <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
-    <div v-if="loading" class="loading">Trwa generowanie kodu QR...</div>
-
-    <!-- Sekcja QR z odświeżaniem -->
-    <div v-if="qrToken" class="qr-container">
-      <h1 class="title">Skanuj QR</h1>
-      <img :src="qrCodeUrl" alt="Kod QR" class="qr-code" />
-      <p class="subtitle">Odświeżanie kodu co 2 sekundy...</p>
+    <h1 class="title">Kod QR do rejestracji obecności</h1>
+    
+    <div v-if="loading" class="loading">Ładowanie kodu QR...</div>
+    <div v-else-if="error" class="error">{{ error }}</div>
+    
+    <div v-if="!loading && !error" class="qr-code">
+      <img :src="qrCodeUrl" alt="Kod QR" />
     </div>
+    
+    <p class="info">Aby zarejestrować obecność, umieść telefon w polu widzenia skanera.</p>
   </div>
 </template>
 
@@ -21,58 +20,57 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 
-const qrToken = ref<string>("");
-const qrCodeUrl = ref<string>("");
-const errorMessage = ref<string | null>(null);
-const loading = ref<boolean>(true);
-let refreshInterval: number | null = null;
+const qrCodeUrl = ref("");
+const loading = ref(true);
+const error = ref("");
+let refreshInterval: number | undefined = undefined;
 
-const fetchQrToken = async () => {
+const fetchQRCode = async () => {
   try {
-    const response = await axios.get(
-      "https://attendme-backend.runasp.net/user/attendance/ticket/get",
-      {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      }
-    );
-    qrToken.value = response.data.token;
-    qrCodeUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrToken.value}`;
-  } catch (error) {
-    console.error("Błąd pobierania tokena QR:", error);
-    errorMessage.value = "Nie udało się pobrać kodu QR.";
+    loading.value = true;
+    const response = await axios.get("https://attendme-backend.runasp.net/user/attendance/ticket/get", {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    
+    if (response.data.token) {
+      qrCodeUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${response.data.token}`;
+    } else {
+      throw new Error("Brak tokenu w odpowiedzi");
+    }
+  } catch (err) {
+    error.value = "Nie udało się pobrać kodu QR.";
+    console.error("Błąd generowania kodu QR:", err);
   } finally {
     loading.value = false;
   }
 };
 
 onMounted(() => {
-  fetchQrToken();
-  refreshInterval = setInterval(fetchQrToken, 2000); // Odświeżanie co 2 sekundy
+  fetchQRCode();
+  refreshInterval = setInterval(fetchQRCode, 2000); // Odświeżaj kod co 2 sekundy
 });
 
 onUnmounted(() => {
-  if (refreshInterval) clearInterval(refreshInterval);
+  clearInterval(refreshInterval);
 });
 
-function getToken() {
+const getToken = () => {
   const storedData = sessionStorage.getItem("authData");
-  if (!storedData) {
-    console.error("Brak danych autoryzacyjnych w sessionStorage");
-    return "";
-  }
+  if (!storedData) return "";
   const authData = JSON.parse(storedData);
   return authData.token;
-}
+};
 </script>
 
 <style scoped>
-.registration-container {
+.qr-container {
   max-width: 500px;
-  padding: 20px;
   border-radius: 20px;
+  padding: 20px;
   margin: 50px auto;
   text-align: center;
   background-color: white;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
@@ -81,33 +79,33 @@ function getToken() {
 }
 
 .title {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: bold;
   color: #000;
+  margin-bottom: 20px;
 }
 
-.qr-container {
-  text-align: center;
+.qr-code img {
+  width: 300px;
+  height: 300px;
   margin-top: 20px;
 }
 
-.qr-code {
-  width: 200px;
-  height: 200px;
-  border: 5px solid #007bff;
-  border-radius: 10px;
-  margin-top: 10px;
-}
-
-.subtitle {
-  font-size: 16px;
+.info {
+  font-size: 14px;
   color: #555;
   margin-top: 10px;
 }
 
-.error {
-  color: red;
+.loading {
+  font-size: 18px;
   font-weight: bold;
-  margin-bottom: 10px;
+  color: blue;
+}
+
+.error {
+  font-size: 18px;
+  font-weight: bold;
+  color: red;
 }
 </style>
