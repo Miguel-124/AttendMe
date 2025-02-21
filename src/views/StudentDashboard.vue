@@ -107,11 +107,9 @@ const showMenu = ref(false);
 const dateFilter = ref("all");
 const searchText = ref("");
 
-// Zmienne do przechowywania danych użytkownika
 const userName = ref("Ładowanie...");
 const userRole = ref("");
 
-// Funkcja pobierająca dane użytkownika
 async function fetchUserData() {
   const storedData = sessionStorage.getItem("authData");
   if (!storedData) {
@@ -121,18 +119,19 @@ async function fetchUserData() {
   const authData = JSON.parse(storedData);
 
   try {
-    const response = await axios.get("https://attendme-backend.runasp.net/user/get", {
-      headers: {
-        Authorization: `Bearer ${authData.token}`,
-      },
-    });
+    const response = await axios.get(
+      "https://attendme-backend.runasp.net/user/get",
+      {
+        headers: {
+          Authorization: `Bearer ${authData.token}`,
+        },
+      }
+    );
 
     const userData = response.data;
 
-    // Ustawiamy nazwę użytkownika
     userName.value = `${userData.name} ${userData.surname}`;
 
-    // Ustalanie roli użytkownika
     if (userData.isTeacher) {
       userRole.value = "Nauczyciel";
     } else if (userData.isStudent) {
@@ -142,14 +141,12 @@ async function fetchUserData() {
     } else {
       userRole.value = "Nieznana rola";
     }
-
   } catch (error) {
     console.error("Błąd pobierania danych użytkownika:", error);
     userName.value = "Błąd ładowania";
   }
 }
 
-/* Funkcja pobierająca sesje */
 async function fetchSessions() {
   const storedData = sessionStorage.getItem("authData");
   if (!storedData) {
@@ -158,7 +155,6 @@ async function fetchSessions() {
   }
   const authData = JSON.parse(storedData);
 
-  // Ustalanie zakresu daty na podstawie `dateFilter`
   const now = new Date();
   let dateStart = null;
   let dateEnd = null;
@@ -221,16 +217,13 @@ async function fetchSessions() {
   }
 }
 
-/* Automatyczne pobieranie nowych danych po zmianie filtra */
 watch(dateFilter, fetchSessions);
 
-// Pobranie danych użytkownika i sesji po załadowaniu strony
 onMounted(async () => {
   await fetchUserData();
   await fetchSessions();
 });
 
-/* Filtrowanie listy sesji na podstawie wyszukiwarki */
 const filteredSessions = computed(() => {
   return sessions.value.filter((session) => {
     const matchesSearch =
@@ -249,7 +242,6 @@ const filteredSessions = computed(() => {
   });
 });
 
-/* Formatowanie daty */
 function formatSessionDate(start: string, end: string): string {
   const startDate = dayjs(start);
   const endDate = dayjs(end);

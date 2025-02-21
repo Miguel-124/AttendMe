@@ -15,7 +15,7 @@ const message = ref("");
 
 async function onDecode(result: string) {
   try {
-    const response = await axios.post(
+    await axios.post(
       "https://attendme-backend.runasp.net/api/course/attendance/register",
       { token: result },
       {
@@ -23,6 +23,7 @@ async function onDecode(result: string) {
       }
     );
     message.value = "Obecność zarejestrowana!";
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     message.value = "Błąd podczas skanowania kodu QR.";
   }

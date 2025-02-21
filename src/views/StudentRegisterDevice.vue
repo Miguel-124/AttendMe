@@ -127,7 +127,6 @@ onMounted(() => {
   }
   userId.value = payload.sub;
 
-  // Sprawdź w localStorage, czy dla tego usera jest zapisany token
   const saved = localStorage.getItem("registeredDeviceTokens");
   const tokensMap = saved ? JSON.parse(saved) : {};
   if (tokensMap[userId.value]) {
@@ -217,7 +216,6 @@ const resetDevice = async () => {
 const goToScan = () => {
   const baseUrl = window.location.origin;
 
-// Generowanie linku na podstawie środowiska (automatyczny localhost)
   window.location.href = `${baseUrl}/student/generate-qr`;
 };
 

@@ -107,11 +107,9 @@ const showMenu = ref(false);
 const dateFilter = ref("all");
 const searchText = ref("");
 
-// Zmienne do przechowywania danych użytkownika
 const userName = ref("name");
 const userRole = ref("role");
 
-// Funkcja pobierająca dane użytkownika
 async function fetchUserData() {
   const storedData = sessionStorage.getItem("authData");
   if (!storedData) {
@@ -149,7 +147,6 @@ async function fetchUserData() {
   }
 }
 
-// Funkcja pobierająca sesje
 async function fetchSessions() {
   const now = new Date();
   let dateStart = null;
@@ -213,7 +210,6 @@ async function fetchSessions() {
   }
 }
 
-// Automatyczne pobieranie nowych danych po zmianie filtra
 watch(dateFilter, fetchSessions);
 
 onMounted(async () => {
@@ -221,7 +217,6 @@ onMounted(async () => {
   await fetchSessions();
 });
 
-// Filtrowanie listy sesji na podstawie wyszukiwarki
 const filteredSessions = computed(() => {
   return sessions.value.filter((session) => {
     const matchesSearch =

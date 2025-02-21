@@ -4,15 +4,17 @@
       <img src="@/assets/logo.png" alt="AttendMe logo" class="logo" />
     </router-link>
     <h1 class="title">Kod QR do rejestracji obecności</h1>
-    
+
     <div v-if="loading" class="loading">Ładowanie kodu QR...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
-    
+
     <div v-if="!loading && !error" class="qr-code">
       <img :src="qrCodeUrl" alt="Kod QR" />
     </div>
-    
-    <p class="info">Aby zarejestrować obecność, umieść telefon w polu widzenia skanera.</p>
+
+    <p class="info">
+      Aby zarejestrować obecność, umieść telefon w polu widzenia skanera.
+    </p>
   </div>
 </template>
 
@@ -28,10 +30,13 @@ let refreshInterval: number | undefined = undefined;
 const fetchQRCode = async () => {
   try {
     loading.value = true;
-    const response = await axios.get("https://attendme-backend.runasp.net/user/attendance/ticket/get", {
-      headers: { Authorization: `Bearer ${getToken()}` },
-    });
-    
+    const response = await axios.get(
+      "https://attendme-backend.runasp.net/user/attendance/ticket/get",
+      {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      }
+    );
+
     if (response.data.token) {
       qrCodeUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${response.data.token}`;
     } else {
@@ -47,7 +52,7 @@ const fetchQRCode = async () => {
 
 onMounted(() => {
   fetchQRCode();
-  refreshInterval = setInterval(fetchQRCode, 2000); // Odświeżaj kod co 2 sekundy
+  refreshInterval = setInterval(fetchQRCode, 2000);
 });
 
 onUnmounted(() => {

@@ -113,7 +113,6 @@
       <div v-if="showDeviceModalFlag" class="modal-backdrop">
         <transition name="modal-scale">
           <div class="modal-content">
-            <!-- Ikonka X w rogu -->
             <div class="close-button" @click="closeDeviceModal">×</div>
 
             <h2 class="modal-title">
@@ -146,14 +145,12 @@
               otwórz adres url, który możesz skopiować poniższym przyciskiem.
             </p>
 
-            <!-- Generowanie dynamicznego kodu QR -->
             <img
               class="qrcode"
               :src="`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrCodeUrl}`"
               alt="QR Code"
             />
 
-            <!-- Przycisk do kopiowania linku -->
             <button @click="copyQrCodeUrl" class="reset-btn copy-scan-link">
               Skopiuj adres
             </button>
@@ -181,7 +178,6 @@ const userName = ref("");
 const userRole = ref("");
 const attendanceList = ref<Attendance[]>([]);
 
-// --- MODAL URZĄDZENIA ---
 const showDeviceModalFlag = ref(false);
 const selectedAttender = ref<Attendance | null>(null);
 const deviceName = ref("");
@@ -254,10 +250,8 @@ async function copyRegistrationLink(userId: number) {
       console.error("Nie udało się pobrać tokenu.");
       return;
     }
-    // Automatycznie wykrywanie adresu hosta i portu
     const baseUrl = window.location.origin;
 
-    // Generowanie linku na podstawie środowiska (automatyczny localhost)
     const registrationLink = `${baseUrl}/student/register-device/${token}`;
     await navigator.clipboard.writeText(registrationLink);
   } catch (err) {
@@ -265,7 +259,6 @@ async function copyRegistrationLink(userId: number) {
   }
 }
 
-// --- POBIERANIE LISTY SESJI ---
 async function fetchSessions() {
   try {
     const response = await axios.post(
@@ -287,7 +280,6 @@ async function fetchSessions() {
   }
 }
 
-// --- POBIERANIE DANYCH ZALOGOWANEGO UŻYTKOWNIKA ---
 async function fetchUserData() {
   try {
     const response = await axios.get(
@@ -311,7 +303,6 @@ async function fetchUserData() {
   }
 }
 
-// --- POBIERANIE LISTY OBECNOŚCI ---
 async function fetchAttendanceList() {
   try {
     const response = await axios.get<Attendance[]>(
@@ -324,7 +315,6 @@ async function fetchAttendanceList() {
   }
 }
 
-// --- POBIERANIE INFORMACJI O URZĄDZENIU DLA KAŻDEGO UCZNIA ---
 async function fetchDevicesForAttendance() {
   await Promise.all(
     attendanceList.value.map(async (attender) => {
@@ -351,7 +341,6 @@ async function fetchDevicesForAttendance() {
   );
 }
 
-// --- ZMIANA STATUSU OBECNOŚCI ---
 async function toggleAttendance(attender: Attendance) {
   const token = getToken();
   if (!token) return;
@@ -374,7 +363,6 @@ async function toggleAttendance(attender: Attendance) {
   }
 }
 
-// --- OTWIERANIE MODALA URZĄDZENIA ---
 function openDeviceModal(attender: Attendance) {
   selectedAttender.value = attender;
   showDeviceModalFlag.value = true;
@@ -390,7 +378,6 @@ function openDeviceModal(attender: Attendance) {
   }
 }
 
-// --- POBIERANIE NAZWY URZĄDZENIA DANEGO UCZNIA (fallback) ---
 async function getUserDeviceName(userId: number) {
   try {
     const token = getToken();
@@ -415,7 +402,6 @@ async function getUserDeviceName(userId: number) {
   }
 }
 
-// --- RESET URZĄDZENIA ---
 async function resetDevice() {
   try {
     if (!selectedAttender.value) return;
@@ -437,7 +423,6 @@ async function resetDevice() {
   }
 }
 
-// --- ZAMYKANIE MODALA URZĄDZENIA ---
 function closeDeviceModal() {
   showDeviceModalFlag.value = false;
   selectedAttender.value = null;
@@ -468,7 +453,6 @@ function getDeviceButtonText(attender: Attendance) {
   }
 }
 
-// --- POMOCNICZE ---
 function getToken() {
   const storedData = sessionStorage.getItem("authData");
   if (!storedData) {

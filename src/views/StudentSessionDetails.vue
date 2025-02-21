@@ -37,20 +37,44 @@
           </div>
         </div>
 
-        <p class="session-info"><span>Termin:</span> <strong>{{ formatDate(sessionDetails.dateStart) }}</strong></p>
-        <p class="session-info"><span>Godziny:</span> <strong>{{ formatTime(sessionDetails.dateStart) }} - {{ formatTime(sessionDetails.dateEnd) }}</strong></p>
-        <p class="session-info"><span>Lokalizacja:</span> <strong>{{ sessionDetails.locationName }}</strong></p>
+        <p class="session-info">
+          <span>Termin:</span>
+          <strong>{{ formatDate(sessionDetails.dateStart) }}</strong>
+        </p>
+        <p class="session-info">
+          <span>Godziny:</span>
+          <strong
+            >{{ formatTime(sessionDetails.dateStart) }} -
+            {{ formatTime(sessionDetails.dateEnd) }}</strong
+          >
+        </p>
+        <p class="session-info">
+          <span>Lokalizacja:</span>
+          <strong>{{ sessionDetails.locationName }}</strong>
+        </p>
 
         <div class="progress-bars">
           <div class="progress-container">
-            <p class="progress-text">Frekwencja dotychczasowa: <strong>{{ attendanceCount }} z {{ totalSessions }} - {{ attendancePercentage }}%</strong></p>
+            <p class="progress-text">
+              Frekwencja dotychczasowa:
+              <strong
+                >{{ attendanceCount }} z {{ totalSessions }} -
+                {{ attendancePercentage }}%</strong
+              >
+            </p>
             <div class="progress-bar">
-              <div class="progress red" :style="{ width: attendancePercentage + '%' }"></div>
+              <div
+                class="progress red"
+                :style="{ width: attendancePercentage + '%' }"
+              ></div>
             </div>
           </div>
 
           <div class="progress-container">
-            <p class="progress-text">Zaawansowanie kursu: <strong>{{ totalSessions }} z {{ totalSessions }} - 100%</strong></p>
+            <p class="progress-text">
+              Zaawansowanie kursu:
+              <strong>{{ totalSessions }} z {{ totalSessions }} - 100%</strong>
+            </p>
             <div class="progress-bar">
               <div class="progress blue" style="width: 100%"></div>
             </div>
@@ -61,9 +85,6 @@
     </div>
   </div>
 </template>
-
-
-
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
@@ -126,14 +147,20 @@ async function fetchSessionDetails() {
       }
     );
 
-    const foundSession = response.data.items.find((s: SessionDetails) => s.courseSessionId === courseSessionId);
+    const foundSession = response.data.items.find(
+      (s: SessionDetails) => s.courseSessionId === courseSessionId
+    );
     if (!foundSession) {
       throw new Error("Nie znaleziono sesji.");
     }
 
     sessionDetails.value = foundSession;
 
-    await fetchAttendance(foundSession.courseGroupId, courseSessionId, authData.token);
+    await fetchAttendance(
+      foundSession.courseGroupId,
+      courseSessionId,
+      authData.token
+    );
   } catch (err: unknown) {
     if (err instanceof Error) {
       error.value = `Błąd: ${err.message}`;
@@ -145,7 +172,11 @@ async function fetchSessionDetails() {
   }
 }
 
-async function fetchAttendance(courseGroupId: number, courseSessionId: number, token: string) {
+async function fetchAttendance(
+  courseGroupId: number,
+  courseSessionId: number,
+  token: string
+) {
   try {
     const response = await axios.get(
       `https://attendme-backend.runasp.net/course/student/attendance/get?courseGroupId=${courseGroupId}`,
@@ -156,7 +187,9 @@ async function fetchAttendance(courseGroupId: number, courseSessionId: number, t
 
     const studentAttendances: Attendance[] = response.data;
     attendanceCount.value = studentAttendances.length;
-    isPresent.value = studentAttendances.some((a) => a.courseSessionId === courseSessionId);
+    isPresent.value = studentAttendances.some(
+      (a) => a.courseSessionId === courseSessionId
+    );
   } catch {
     error.value = "Błąd pobierania frekwencji.";
   }
@@ -171,18 +204,19 @@ async function fetchUserData() {
   const authData = JSON.parse(storedData);
 
   try {
-    const response = await axios.get("https://attendme-backend.runasp.net/user/get", {
-      headers: {
-        Authorization: `Bearer ${authData.token}`,
-      },
-    });
+    const response = await axios.get(
+      "https://attendme-backend.runasp.net/user/get",
+      {
+        headers: {
+          Authorization: `Bearer ${authData.token}`,
+        },
+      }
+    );
 
     const userData = response.data;
 
-    // Ustawiamy nazwę użytkownika
     userName.value = `${userData.name} ${userData.surname}`;
 
-    // Ustalanie roli użytkownika
     if (userData.isTeacher) {
       userRole.value = "Nauczyciel";
     } else if (userData.isStudent) {
@@ -192,7 +226,6 @@ async function fetchUserData() {
     } else {
       userRole.value = "Nieznana rola";
     }
-
   } catch (error) {
     console.error("Błąd pobierania danych użytkownika:", error);
     userName.value = "Błąd ładowania";
@@ -217,14 +250,15 @@ function formatTime(date: string): string {
 }
 
 const attendancePercentage = computed(() => {
-  return totalSessions.value > 0 ? Math.round((attendanceCount.value / totalSessions.value) * 100) : 0;
+  return totalSessions.value > 0
+    ? Math.round((attendanceCount.value / totalSessions.value) * 100)
+    : 0;
 });
 
 onMounted(() => {
   fetchSessionDetails();
   fetchUserData();
 });
-
 </script>
 
 <style scoped>
@@ -314,7 +348,6 @@ onMounted(() => {
   font-weight: bold;
 }
 
-/* Nagłówek */
 .session-header {
   display: flex;
   justify-content: space-between;
@@ -322,7 +355,6 @@ onMounted(() => {
   margin-bottom: 10px;
 }
 
-/* Styl dla nazwy zajęć */
 .course-title {
   font-size: 22px;
   font-weight: bold;
@@ -330,7 +362,6 @@ onMounted(() => {
   color: #000;
 }
 
-/* Obecność */
 .attendance-status {
   text-align: right;
 }
@@ -343,7 +374,6 @@ onMounted(() => {
   color: #000;
 }
 
-/* Tekst szczegółów sesji */
 .session-info {
   font-size: 16px;
   color: #000;
@@ -358,7 +388,6 @@ onMounted(() => {
   font-weight: bold;
 }
 
-/* Guziki */
 .btn-present {
   background: #007b45;
   color: white;
@@ -387,7 +416,6 @@ onMounted(() => {
   margin-bottom: 10px;
 }
 
-/* Pasek postępu */
 .progress-text {
   font-size: 14px;
   font-weight: normal;
@@ -420,5 +448,4 @@ onMounted(() => {
 .blue {
   background: #007bff;
 }
-
 </style>

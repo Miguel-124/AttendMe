@@ -38,6 +38,16 @@ const error = ref<string | null>(null);
 const scannedData = ref<string | null>(null);
 
 onMounted(async () => {
+  try {
+    await navigator.mediaDevices.getUserMedia({ video: true });
+    console.log("Uprawnienia do kamery przyznane.");
+  } catch (err) {
+    console.error("Błąd dostępu do kamery:", err);
+    error.value = "Nie udało się uzyskać dostępu do kamery.";
+    loading.value = false;
+    return;
+  }
+
   token.value =
     (route.params.token as string) || (route.query.token as string) || "";
 
@@ -59,7 +69,7 @@ onMounted(async () => {
       return;
     }
 
-    console.log("📷 Znaleziono kamery:", videoDevices);
+    console.log("Znaleziono kamery:", videoDevices);
   } catch (err) {
     console.error("Błąd sprawdzania urządzeń:", err);
     error.value = "Nie można uzyskać dostępu do listy urządzeń.";

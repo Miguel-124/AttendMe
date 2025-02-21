@@ -44,22 +44,18 @@ const router = useRouter();
 
 async function login() {
   try {
-    // Wysyłamy login i hasło do backendu
     const response = await axios.post(
       `https://attendme-backend.runasp.net/user/login?loginName=${encodeURIComponent(email.value)}&password=${encodeURIComponent(password.value)}`
     );
 
-    // Sprawdzenie, czy backend zwrócił token
     if (!response.data.token) {
       throw new Error("Brak tokena w odpowiedzi serwera");
     }
 
     const tokenData = response.data;
 
-    // Zapisanie do sessionStorage jako string
     sessionStorage.setItem("authData", JSON.stringify(tokenData));
 
-    // Pobieramy dane użytkownika z backendu
     const storedData = sessionStorage.getItem("authData");
 
     if (!storedData) {
@@ -76,8 +72,6 @@ async function login() {
       }
     );
 
-    // Pobranie danych użytkownika
-    // Przekierowanie w zależności od roli użytkownika
     if (user.data.isStudent) {
       router.push("/student");
     } else if (user.data.isTeacher) {
@@ -93,7 +87,6 @@ async function login() {
 </script>
 
 <style scoped>
-/* Główne kontener */
 .login-container {
   display: flex;
   width: 100vw;
@@ -101,11 +94,9 @@ async function login() {
   margin: 0;
   justify-content: center;
   align-items: center;
-  /* min-height: 100vh; */
   background-color: #000000;
 }
 
-/* Pudełko z formularzem */
 .login-box {
   background: white;
   padding: 40px;
@@ -115,14 +106,12 @@ async function login() {
   width: 500px;
 }
 
-/* Logo */
 .logo {
   width: 200px;
   margin-bottom: 20px;
   border-radius: 20%;
 }
 
-/* Tytuł */
 .title {
   font-size: 22px;
   font-weight: bold;
@@ -130,12 +119,10 @@ async function login() {
   margin-bottom: 20px;
 }
 
-/* Formularz */
 .form {
   text-align: left;
 }
 
-/* Etykiety pól */
 .label {
   display: block;
   font-size: 14px;
@@ -144,7 +131,6 @@ async function login() {
   margin-bottom: 6px;
 }
 
-/* Pola input */
 .input {
   width: 100%;
   padding: 10px;
@@ -160,7 +146,6 @@ async function login() {
   border-color: #2563eb;
 }
 
-/* Przycisk logowania */
 .button {
   width: 100%;
   background: #2563eb;
@@ -178,14 +163,12 @@ async function login() {
   background: #1e40af;
 }
 
-/* Komunikat błędu */
 .error {
   color: red;
   font-size: 14px;
   margin-top: 10px;
 }
 
-/* Stopka */
 .footer {
   margin-top: 20px;
   font-size: 12px;
