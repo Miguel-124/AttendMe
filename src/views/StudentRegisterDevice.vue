@@ -4,14 +4,13 @@
       <img src="@/assets/logo.png" alt="AttendMe logo" class="logo" />
     </router-link>
 
-    
     <h1 class="title">Rejestracja urządzenia</h1>
     <p class="subtitle">
       Rejestrujesz urządzenie, którego będziesz używać do sprawdzania obecności.
       Uzupełnij poniższe dane i naciśnij przycisk "Rejestruj".
     </p>
 
-      <!-- Komunikaty błędów i sukcesu -->
+    <!-- Komunikaty błędów i sukcesu -->
     <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
     <div v-if="successMessage" class="success">{{ successMessage }}</div>
     <div v-if="loading" class="loading">Trwa rejestracja urządzenia...</div>
@@ -19,16 +18,40 @@
     <div class="form-container">
       <form @submit.prevent="registerDevice">
         <label for="deviceName">Nazwa urządzenia</label>
-        <input id="deviceName" v-model="deviceName" type="text" placeholder="Wprowadź nazwę urządzenia" required />
+        <input
+          id="deviceName"
+          v-model="deviceName"
+          type="text"
+          placeholder="Wprowadź nazwę urządzenia"
+          required
+        />
 
         <label for="firstName">Twoje imię</label>
-        <input id="firstName" v-model="firstName" type="text" placeholder="Wprowadź swoje imię" required />
+        <input
+          id="firstName"
+          v-model="firstName"
+          type="text"
+          placeholder="Wprowadź swoje imię"
+          required
+        />
 
         <label for="lastName">Twoje nazwisko</label>
-        <input id="lastName" v-model="lastName" type="text" placeholder="Wprowadź swoje nazwisko" required />
+        <input
+          id="lastName"
+          v-model="lastName"
+          type="text"
+          placeholder="Wprowadź swoje nazwisko"
+          required
+        />
 
         <label for="studentId">Twój numer albumu</label>
-        <input id="studentId" v-model="studentId" type="text" placeholder="Wprowadź numer albumu" required />
+        <input
+          id="studentId"
+          v-model="studentId"
+          type="text"
+          placeholder="Wprowadź numer albumu"
+          required
+        />
 
         <button type="submit" class="submit-button" :disabled="loading">
           {{ loading ? "Rejestracja..." : "Zarejestruj" }}
@@ -56,11 +79,21 @@ const loading = ref<boolean>(false);
 
 // Pobranie tokena z URL po zamontowaniu komponentu
 onMounted(() => {
-  token.value = route.params.token as string || "";
+  token.value = (route.params.token as string) || "";
   if (!token.value) {
     errorMessage.value = "Brak tokenu rejestracyjnego w adresie URL.";
   }
 });
+
+function getToken() {
+  const storedData = sessionStorage.getItem("authData");
+  if (!storedData) {
+    console.error("Brak danych autoryzacyjnych w sessionStorage");
+    return "";
+  }
+  const authData = JSON.parse(storedData);
+  return authData.token;
+}
 
 // Funkcja rejestracji urządzenia
 const registerDevice = async () => {
@@ -74,23 +107,27 @@ const registerDevice = async () => {
   successMessage.value = null;
 
   try {
-    const response = await axios.post("https://attendme-backend.runasp.net/user/device/register", {
-      token: token.value,
-      deviceName: deviceName.value,
-      firstName: firstName.value,
-      lastName: lastName.value,
-      studentId: studentId.value,
-    });
+    await axios.post(
+      "https://attendme-backend.runasp.net/user/device/register",
+      {
+        token: token.value,
+        deviceName: deviceName.value,
+        firstName: firstName.value,
+        lastName: lastName.value,
+        studentId: studentId.value,
+        headers: { Authorization: `Bearer ${getToken()}` },
+      }
+    );
 
     successMessage.value = "Urządzenie zostało pomyślnie zarejestrowane!";
   } catch (err) {
     console.error("Błąd rejestracji:", err);
-    errorMessage.value = "Nie udało się zarejestrować urządzenia. Spróbuj ponownie.";
+    errorMessage.value =
+      "Nie udało się zarejestrować urządzenia. Spróbuj ponownie.";
   } finally {
     loading.value = false;
   }
 };
-
 </script>
 
 <style scoped>
@@ -171,5 +208,4 @@ input {
   font-weight: bold;
   margin-bottom: 10px;
 }
-
 </style>

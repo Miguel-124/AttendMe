@@ -95,7 +95,10 @@
                 </button>
               </td>
               <td class="center">
-                <button class="register-btn" @click="copyRegistrationLink(attender.attenderUserId)">
+                <button
+                  class="register-btn"
+                  @click="copyRegistrationLink(attender.attenderUserId)"
+                >
                   <i class="fas fa-qrcode"></i> Rejestruj
                 </button>
               </td>
@@ -132,18 +135,33 @@
       </div>
     </transition>
     <transition name="modal-fade">
-          <div v-if="showQrModal" class="modal-backdrop">
-            <transition name="modal-scale">
-              <div class="modal-content">
-                <div class="close-button" @click="showQrModal = false">×</div>
-                <h2 class="modal-title">Skaner obecności</h2>
-                <p>Do sprawdzania obecności wymagane jest urządzenie wyposażone w kamerę (tablet lub telefon). Zeskanuj na nim poniższy kod QR lub otwórz adres url, który możesz skopiować poniższym przyciskiem. Sprawdzenie obecności polega na umieszczeniu w polu widzenia kamery skanera kodu QR wygnerowanego na ekranie telefonu uczestnika.</p>
-                <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + qrCodeUrl" alt="QR Code">
-                <button @click="copyQrCodeUrl" class="reset-btn">Skopiuj adres</button>
-              </div>
-            </transition>
+      <div v-if="showQrModal" class="modal-backdrop">
+        <transition name="modal-scale">
+          <div class="modal-content">
+            <div class="close-button" @click="showQrModal = false">×</div>
+            <h2 class="modal-title">Skaner obecności</h2>
+            <p>
+              Do sprawdzania obecności wymagane jest urządzenie wyposażone w
+              kamerę (tablet lub telefon). Zeskanuj na nim poniższy kod QR lub
+              otwórz adres url, który możesz skopiować poniższym przyciskiem.
+              Sprawdzenie obecności polega na umieszczeniu w polu widzenia
+              kamery skanera kodu QR wygnerowanego na ekranie telefonu
+              uczestnika.
+            </p>
+            <img
+              :src="
+                'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' +
+                qrCodeUrl
+              "
+              alt="QR Code"
+            />
+            <button @click="copyQrCodeUrl" class="reset-btn">
+              Skopiuj adres
+            </button>
           </div>
         </transition>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -173,7 +191,6 @@ const resetMessage = ref("");
 
 const showQrModal = ref(false);
 const qrCodeUrl = ref("");
-
 
 interface Attendance {
   attendanceLogId: number | null;
@@ -232,7 +249,6 @@ async function copyRegistrationLink(userId: number) {
     console.error("Błąd pobierania tokenu:", err);
   }
 }
-
 
 // --- POBIERANIE LISTY SESJI ---
 async function fetchSessions() {
@@ -474,11 +490,14 @@ onMounted(async () => {
   await fetchDevicesForAttendance();
 });
 function copyQrCodeUrl() {
-  navigator.clipboard.writeText(qrCodeUrl.value).then(() => {
-    console.log("Adres skopiowany do schowka");
-  }).catch(err => {
-    console.error("Błąd kopiowania adresu:", err);
-  });
+  navigator.clipboard
+    .writeText(qrCodeUrl.value)
+    .then(() => {
+      console.log("Adres skopiowany do schowka");
+    })
+    .catch((err) => {
+      console.error("Błąd kopiowania adresu:", err);
+    });
 }
 </script>
 
