@@ -4,11 +4,9 @@
       <img src="@/assets/logo.png" alt="AttendMe logo" class="logo" />
     </router-link>
 
-    <!-- Komunikaty błędów i stanu -->
     <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
     <div v-if="loading" class="loading">Trwa rejestracja urządzenia...</div>
 
-    <!-- Ekran: Urządzenie już zarejestrowane dla danego użytkownika -->
     <div v-if="deviceAlreadyRegistered" class="success-container">
       <h1 class="title">Urządzenie zarejestrowane</h1>
       <p class="subtitle">
@@ -25,7 +23,6 @@
       <p v-if="resetMessage" class="reset-message">{{ resetMessage }}</p>
     </div>
 
-    <!-- Formularz rejestracji (pokazywany, gdy nie ma tokenu dla danego użytkownika) -->
     <div v-else class="form-container">
       <h1 class="title register">Rejestracja urządzenia</h1>
       <p class="subtitle register">
@@ -81,8 +78,10 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
+import dayjs from "dayjs";
+import "dayjs/locale/pl";
+dayjs.locale("pl");
 
-// Funkcja pomocnicza do dekodowania JWT – wyciąga payload
 function parseJwt(token: string) {
   const base64Url = token.split(".")[1];
   if (!base64Url) return null;
@@ -98,28 +97,22 @@ function parseJwt(token: string) {
 const route = useRoute();
 const router = useRouter();
 
-// Pobieramy token rejestracyjny z URL (przekazywany jako param lub query)
 const urlToken = ref<string>("");
-// Wyciągamy identyfikator użytkownika z tokena (np. z pola "sub")
 const userId = ref<string>("");
 
-// Stan rejestracji – czy dla danego użytkownika urządzenie jest już zarejestrowane
 const deviceAlreadyRegistered = ref(false);
 
-// Pola formularza
 const deviceNameInput = ref("");
 const firstName = ref("");
 const lastName = ref("");
 const studentId = ref("");
 
-// Komunikaty i stan ładowania
 const errorMessage = ref<string | null>(null);
 const successMessage = ref<string | null>(null);
 const resetMessage = ref<string | null>(null);
 const loading = ref<boolean>(false);
 
 onMounted(() => {
-  // Pobierz token z URL (params lub query)
   urlToken.value =
     (route.params.token as string) || (route.query.token as string) || "";
   if (!urlToken.value) {
@@ -127,7 +120,6 @@ onMounted(() => {
     return;
   }
 
-  // Dekoduj token i wyciągnij identyfikator użytkownika (pole "sub")
   const payload = parseJwt(urlToken.value);
   if (!payload || !payload.sub) {
     errorMessage.value = "Token rejestracyjny jest nieprawidłowy.";
@@ -135,7 +127,7 @@ onMounted(() => {
   }
   userId.value = payload.sub;
 
-  // Sprawdź w localStorage, czy dla tego użytkownika jest zapisany token
+  // Sprawdź w localStorage, czy dla tego usera jest zapisany token
   const saved = localStorage.getItem("registeredDeviceTokens");
   const tokensMap = saved ? JSON.parse(saved) : {};
   if (tokensMap[userId.value]) {
@@ -143,6 +135,20 @@ onMounted(() => {
     successMessage.value = "Urządzenie jest już zarejestrowane!";
   }
 });
+
+function getRegistrationToken() {
+  return urlToken.value;
+}
+
+function getAuthToken() {
+  const storedData = sessionStorage.getItem("authData");
+  if (!storedData) {
+    console.error("Brak danych autoryzacyjnych w sessionStorage");
+    return "";
+  }
+  const authData = JSON.parse(storedData);
+  return authData.token;
+}
 
 const registerDevice = async () => {
   if (!urlToken.value) {
@@ -161,14 +167,13 @@ const registerDevice = async () => {
         studentSurname: lastName.value,
         albumIdNumber: studentId.value,
       },
-      { headers: { Authorization: `Bearer ${urlToken.value}` } }
+      { headers: { Authorization: `Bearer ${getRegistrationToken()}` } }
     );
     successMessage.value = "Urządzenie zostało pomyślnie zarejestrowane!";
 
-    // Zapisz token w localStorage w obiekcie kluczowanym po userId
     const saved = localStorage.getItem("registeredDeviceTokens");
     const tokensMap = saved ? JSON.parse(saved) : {};
-    tokensMap[userId.value] = urlToken.value;
+    tokensMap[userId.value] = getRegistrationToken();
     localStorage.setItem("registeredDeviceTokens", JSON.stringify(tokensMap));
 
     deviceAlreadyRegistered.value = true;
@@ -182,7 +187,6 @@ const registerDevice = async () => {
 };
 
 const resetDevice = async () => {
-  // Pobierz token z localStorage dla danego usera
   const saved = localStorage.getItem("registeredDeviceTokens");
   const tokensMap = saved ? JSON.parse(saved) : {};
   const userToken = tokensMap[userId.value];
@@ -191,17 +195,15 @@ const resetDevice = async () => {
     return;
   }
   try {
-    // Przekażemy jako parametr deviceUserId (przyjmujemy, że userId jest tym samym identyfikatorem)
     await axios.post(
       "https://attendme-backend.runasp.net/user/device/reset",
       {},
       {
-        headers: { Authorization: `Bearer ${userToken}` },
+        headers: { Authorization: `Bearer ${getAuthToken()}` },
         params: { deviceUserId: userId.value },
       }
     );
     resetMessage.value = "Urządzenie zostało zresetowane.";
-    // Usuń token dla tego użytkownika z localStorage
     delete tokensMap[userId.value];
     localStorage.setItem("registeredDeviceTokens", JSON.stringify(tokensMap));
     deviceAlreadyRegistered.value = false;
