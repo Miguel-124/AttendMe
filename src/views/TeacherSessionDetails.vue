@@ -236,7 +236,6 @@ async function openQrScanner() {
   }
 }
 
-
 async function copyRegistrationLink(userId: number) {
   try {
     const response = await axios.get(
