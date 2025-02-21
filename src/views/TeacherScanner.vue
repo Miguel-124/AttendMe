@@ -23,11 +23,6 @@
     <div v-if="scannedData" class="result">
       <p>Zeskanowany kod: <strong>{{ scannedData }}</strong></p>
     </div>
-
-    <!-- 🔁 Przycisk zmiany kamery -->
-    <button v-if="!loading && !error" class="switch-camera" @click="switchCamera">
-      Zmień kamerę
-    </button>
   </div>
 </template>
 
@@ -42,30 +37,30 @@ const token = ref<string>("");
 const loading = ref<boolean>(true);
 const error = ref<string | null>(null);
 const scannedData = ref<string | null>(null);
-const activeCamera = ref<number>(0); // Przechowuje indeks aktywnej kamery
 
 onMounted(async () => {
   token.value = (route.params.token as string) || (route.query.token as string) || "";
-
+  
   if (!token.value) {
     error.value = "Brak tokenu skanera w adresie URL.";
     return;
   }
 
-  // ✅ Sprawdzenie kompatybilności BarcodeDetector
-  if ("BarcodeDetector" in window) {
-    console.log("✅ BarcodeDetector dostępny.");
-  } else {
-    console.warn("❌ BarcodeDetector nie jest obsługiwany.");
-  }
-
-  // ✅ Debugowanie dostępu do kamery
+  console.log("🔍 Sprawdzam dostępność kamery...");
   try {
-    await navigator.mediaDevices.getUserMedia({ video: true });
-    console.log("📸 Dostęp do kamery uzyskany!");
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevices = devices.filter(device => device.kind === "videoinput");
+
+    if (videoDevices.length === 0) {
+      error.value = "❌ Brak dostępnej kamery!";
+      loading.value = false;
+      return;
+    }
+
+    console.log("📷 Znaleziono kamery:", videoDevices);
   } catch (err) {
-    console.error("❌ Błąd dostępu do kamery:", err);
-    error.value = "Nie można uzyskać dostępu do kamery. Sprawdź uprawnienia.";
+    console.error("❌ Błąd sprawdzania urządzeń:", err);
+    error.value = "Nie można uzyskać dostępu do listy urządzeń.";
     loading.value = false;
   }
 });
@@ -73,8 +68,8 @@ onMounted(async () => {
 const onCameraInit = async (promise: Promise<void>) => {
   try {
     await promise;
-    loading.value = false; // ✅ Kamera działa, ukryj ładowanie
-    console.log("✅ Kamera uruchomiona!");
+    loading.value = false; // ✅ Jeśli kamera działa, przestań ładować
+    console.log("✅ Kamera uruchomiona poprawnie!");
   } catch (err) {
     console.error("📷 Błąd inicjalizacji kamery:", err);
     error.value = "Nie można uruchomić skanera. Sprawdź uprawnienia.";
@@ -102,24 +97,6 @@ const onScanSuccess = async (result: string) => {
   } catch (err) {
     console.error("❌ Błąd przesyłania skanu:", err);
     error.value = "Błąd przesyłania skanowania. Spróbuj ponownie.";
-  }
-};
-
-// 🔁 Zmiana aktywnej kamery
-const switchCamera = async () => {
-  try {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const videoDevices = devices.filter(device => device.kind === "videoinput");
-
-    if (videoDevices.length > 1) {
-      activeCamera.value = (activeCamera.value + 1) % videoDevices.length;
-      console.log(`📷 Zmiana kamery na: ${videoDevices[activeCamera.value].label}`);
-    } else {
-      console.warn("⚠️ Brak dodatkowych kamer do przełączenia.");
-    }
-  } catch (err) {
-    console.error("❌ Błąd zmiany kamery:", err);
-    error.value = "Nie udało się przełączyć kamery.";
   }
 };
 
@@ -164,7 +141,7 @@ function getToken() {
   margin-top: 20px;
 }
 
-/* ✅ Nowy styl dla podglądu kamery */
+/* ✅ Styl podglądu kamery */
 .scanner {
   width: 100%;
   height: 400px;
@@ -187,21 +164,5 @@ function getToken() {
   font-weight: bold;
   color: #007b45;
   margin-top: 20px;
-}
-
-/* 🔁 Przycisk zmiany kamery */
-.switch-camera {
-  background-color: #007bff;
-  color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  margin-top: 10px;
-  cursor: pointer;
-}
-
-.switch-camera:hover {
-  background-color: #0056b3;
 }
 </style>
