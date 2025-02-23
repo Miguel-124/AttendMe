@@ -29,7 +29,10 @@ let refreshInterval: number | undefined = undefined;
 
 const fetchQRCode = async () => {
   try {
-    loading.value = true;
+    // Ustaw loading tylko przy pierwszym załadowaniu
+    if (!qrCodeUrl.value) {
+      loading.value = true;
+    }
     const response = await axios.get(
       "https://attendme-backend.runasp.net/user/attendance/ticket/get",
       {
@@ -63,18 +66,21 @@ onUnmounted(() => {
 
 
 function getToken() {
-  const storedData = sessionStorage.getItem("registeredDeviceToken");
-  if (!storedData) {
+  const stored = sessionStorage.getItem("registeredDeviceToken");
+  if (!stored) {
     console.error("Brak danych autoryzacyjnych w sessionStorage");
     return "";
   }
-  return storedData;
+  const parts = stored.split(": ");
+  // Zakładamy, że format to "userId: token"
+  return parts.length > 1 ? parts[1] : "";
 }
+
 </script>
 
 <style scoped>
 .qr-container {
-  max-width: 500px;
+  width: 50%;
   border-radius: 20px;
   padding: 20px;
   margin: 50px auto;
@@ -96,8 +102,8 @@ function getToken() {
 }
 
 .qr-code img {
-  width: 300px;
-  height: 300px;
+  width: 80%;
+  height: 80%;
   margin-top: 20px;
 }
 
@@ -118,4 +124,6 @@ function getToken() {
   font-weight: bold;
   color: red;
 }
+
+
 </style>

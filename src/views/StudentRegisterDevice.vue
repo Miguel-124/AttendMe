@@ -170,8 +170,7 @@ const registerDevice = async () => {
     );
     successMessage.value = "Urządzenie zostało pomyślnie zarejestrowane!";
 
-    sessionStorage.setItem("registeredDeviceToken", getRegistrationToken());
-
+    sessionStorage.setItem("registeredDeviceToken", `${userId.value}: ${getRegistrationToken()}`);
 
     deviceAlreadyRegistered.value = true;
   } catch (error) {
@@ -196,7 +195,7 @@ const resetDevice = async () => {
       "https://attendme-backend.runasp.net/user/device/reset",
       {},
       {
-        headers: { Authorization: `Bearer ${getAuthToken()}` },
+        headers: { Authorization: `Bearer ${getToken()}` },
         params: { deviceUserId: userId.value },
       }
     );
@@ -220,6 +219,17 @@ const goToScan = () => {
 const goToDashboard = () => {
   router.push("/#");
 };
+
+function getToken() {
+  const stored = sessionStorage.getItem("registeredDeviceToken");
+  if (!stored) {
+    console.error("Brak danych autoryzacyjnych w sessionStorage");
+    return "";
+  }
+  const parts = stored.split(": ");
+  // Zakładamy, że format to "userId: token"
+  return parts.length > 1 ? parts[1] : "";
+}
 </script>
 
 <style scoped>
