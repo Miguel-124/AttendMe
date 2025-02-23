@@ -139,16 +139,6 @@ function getRegistrationToken() {
   return urlToken.value;
 }
 
-function getAuthToken() {
-  const storedData = sessionStorage.getItem("authData");
-  if (!storedData) {
-    console.error("Brak danych autoryzacyjnych w sessionStorage");
-    return "";
-  }
-  const authData = JSON.parse(storedData);
-  return authData.token;
-}
-
 const registerDevice = async () => {
   if (!urlToken.value) {
     errorMessage.value = "Brak tokenu. Sprawdź poprawność linku.";
@@ -183,10 +173,11 @@ const registerDevice = async () => {
 };
 
 const resetDevice = async () => {
-  const saved = sessionStorage.getItem("registeredDeviceTokens");
-  const tokensMap = saved ? JSON.parse(saved) : {};
-  const userToken = tokensMap[userId.value];
-  if (!userToken) {
+  // Pobieramy userId i token z sessionStorage
+  const { userId, token } = getUserIdAndToken();
+  
+  // Jeśli nie ma userId lub tokenu, przerywamy
+  if (!userId || !token) {
     resetMessage.value = "Brak zarejestrowanego urządzenia.";
     return;
   }
@@ -196,12 +187,14 @@ const resetDevice = async () => {
       {},
       {
         headers: { Authorization: `Bearer ${getToken()}` },
-        params: { deviceUserId: userId.value },
+        params: { deviceUserId: userId },
       }
     );
     resetMessage.value = "Urządzenie zostało zresetowane.";
-    delete tokensMap[userId.value];
-    sessionStorage.setItem("registeredDeviceTokens", JSON.stringify(tokensMap));
+
+    // Usuwamy wpis z sessionStorage, bo urządzenie jest zresetowane
+    sessionStorage.removeItem("registeredDeviceToken");
+
     deviceAlreadyRegistered.value = false;
     successMessage.value = null;
   } catch (error) {
@@ -220,16 +213,38 @@ const goToDashboard = () => {
   router.push("/#");
 };
 
-function getToken() {
+/**
+ * Zwraca obiekt { userId, token }
+ * jeśli w sessionStorage mamy zapis w formacie "userId: token".
+ */
+ function getUserIdAndToken() {
   const stored = sessionStorage.getItem("registeredDeviceToken");
   if (!stored) {
     console.error("Brak danych autoryzacyjnych w sessionStorage");
-    return "";
+    return { userId: "", token: "" };
   }
+
   const parts = stored.split(": ");
-  // Zakładamy, że format to "userId: token"
-  return parts.length > 1 ? parts[1] : "";
+  if (parts.length < 2) {
+    console.error("Nieprawidłowy format. Oczekiwano 'userId: token'");
+    return { userId: "", token: "" };
+  }
+
+  return {
+    userId: parts[0],  // np. "23"
+    token: parts[1],   // np. "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  };
 }
+
+
+/**
+ * Zwraca tylko token (np. "eyJhbGciOiJIUzI1NiIs...")
+ */
+function getToken() {
+  const { token } = getUserIdAndToken();
+  return token;
+}
+
 </script>
 
 <style scoped>

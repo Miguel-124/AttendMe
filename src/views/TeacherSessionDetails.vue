@@ -162,7 +162,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 import { useRoute } from "vue-router";
 import dayjs from "dayjs";
@@ -177,6 +177,8 @@ const showMenu = ref(false);
 const userName = ref("");
 const userRole = ref("");
 const attendanceList = ref<Attendance[]>([]);
+let refreshInterval: number | undefined;   // ID timera
+
 
 const showDeviceModalFlag = ref(false);
 const selectedAttender = ref<Attendance | null>(null);
@@ -491,6 +493,13 @@ onMounted(async () => {
   await fetchAttendanceList();
   await fetchSessions();
   await fetchDevicesForAttendance();
+  refreshInterval = window.setInterval(fetchAttendanceList, 2000);
+});
+
+onUnmounted(() => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
 });
 
 function copyQrCodeUrl() {
