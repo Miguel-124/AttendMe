@@ -247,11 +247,12 @@ async function copyRegistrationLink(userId: number) {
     );
 
     const token = response.data.token;
-    sessionStorage.setItem("scanner_token", token);
+    sessionStorage.setItem("scanner_token", (token));
     if (!token) {
-      console.error("Nie udało się pobrać tokenu.");
+      console.error("Nie udało się pobrać tokenu skanera.");
       return;
     }
+    
     const baseUrl = window.location.origin;
 
     const registrationLink = `${baseUrl}/student/register-device/${token}`;

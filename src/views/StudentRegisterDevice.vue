@@ -127,12 +127,12 @@ onMounted(() => {
   }
   userId.value = payload.sub;
 
-  const saved = sessionStorage.getItem("registeredDeviceTokens");
-  const tokensMap = saved ? JSON.parse(saved) : {};
-  if (tokensMap[userId.value]) {
+  const savedToken = sessionStorage.getItem("registeredDeviceTokens");
+  if (savedToken) {
     deviceAlreadyRegistered.value = true;
     successMessage.value = "Urządzenie jest już zarejestrowane!";
   }
+
 });
 
 function getRegistrationToken() {
@@ -170,10 +170,8 @@ const registerDevice = async () => {
     );
     successMessage.value = "Urządzenie zostało pomyślnie zarejestrowane!";
 
-    const saved = sessionStorage.getItem("registeredDeviceTokens");
-    const tokensMap = saved ? JSON.parse(saved) : {};
-    tokensMap[userId.value] = getRegistrationToken();
-    sessionStorage.setItem("registeredDeviceTokens", JSON.stringify(tokensMap));
+    sessionStorage.setItem("registeredDeviceToken", getRegistrationToken());
+
 
     deviceAlreadyRegistered.value = true;
   } catch (error) {

@@ -48,6 +48,7 @@ export default defineComponent({
 
     };
   },
+  
   mounted() {
     // Odczyt tokena z parametru trasy lub query
     const token = this.$route.params.token || this.$route.query.token;

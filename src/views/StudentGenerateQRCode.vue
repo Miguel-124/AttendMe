@@ -36,6 +36,7 @@ const fetchQRCode = async () => {
         headers: { Authorization: `Bearer ${getToken()}` },
       }
     );
+    console.log("Odpowiedź z serwera:", getToken());
 
     if (response.data.token) {
       qrCodeUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${response.data.token}`;
@@ -50,6 +51,7 @@ const fetchQRCode = async () => {
   }
 };
 
+
 onMounted(() => {
   fetchQRCode();
   refreshInterval = setInterval(fetchQRCode, 2000);
@@ -59,12 +61,15 @@ onUnmounted(() => {
   clearInterval(refreshInterval);
 });
 
-const getToken = () => {
-  const storedData = sessionStorage.getItem("authData");
-  if (!storedData) return "";
-  const authData = JSON.parse(storedData);
-  return authData.token;
-};
+
+function getToken() {
+  const storedData = sessionStorage.getItem("registeredDeviceToken");
+  if (!storedData) {
+    console.error("Brak danych autoryzacyjnych w sessionStorage");
+    return "";
+  }
+  return storedData;
+}
 </script>
 
 <style scoped>
