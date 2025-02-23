@@ -252,6 +252,7 @@ function getToken() {
 }
 
 function logout() {
+  sessionStorage.removeItem("token");
   localStorage.removeItem("token");
   router.push("/");
 }

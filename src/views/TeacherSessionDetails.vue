@@ -81,7 +81,7 @@
                     class="fas"
                     :class="attender.wasUserPresent ? 'fa-times' : 'fa-check'"
                   ></i>
-                  {{ attender.wasUserPresent ? "Zanacz" : "Odznacz" }}
+                  {{ attender.wasUserPresent ? "Odznacz" : "Zanacz" }}
                 </button>
               </td>
               <!-- PRZYCISK URZĄDZENIE -->
@@ -219,6 +219,7 @@ async function openQrScanner() {
     );
 
     const token = response.data.token;
+    sessionStorage.setItem("scanner_token", (token));
     if (!token) {
       console.error("Nie udało się pobrać tokenu skanera.");
       return;
@@ -246,6 +247,7 @@ async function copyRegistrationLink(userId: number) {
     );
 
     const token = response.data.token;
+    sessionStorage.setItem("scanner_token", token);
     if (!token) {
       console.error("Nie udało się pobrać tokenu.");
       return;
@@ -478,6 +480,7 @@ function toggleMenu() {
 }
 
 function logout() {
+  sessionStorage.removeItem("token");
   localStorage.removeItem("token");
   window.location.href = "/";
 }
@@ -488,6 +491,7 @@ onMounted(async () => {
   await fetchSessions();
   await fetchDevicesForAttendance();
 });
+
 function copyQrCodeUrl() {
   navigator.clipboard
     .writeText(qrCodeUrl.value)

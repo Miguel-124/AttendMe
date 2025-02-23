@@ -59,7 +59,7 @@ async function login() {
     const storedData = sessionStorage.getItem("authData");
 
     if (!storedData) {
-      throw new Error("Brak danych autoryzacyjnych w localStorage");
+      throw new Error("Brak danych autoryzacyjnych w sessionStorage");
     }
     const authData = JSON.parse(storedData);
 

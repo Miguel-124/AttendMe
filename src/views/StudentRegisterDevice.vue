@@ -127,7 +127,7 @@ onMounted(() => {
   }
   userId.value = payload.sub;
 
-  const saved = localStorage.getItem("registeredDeviceTokens");
+  const saved = sessionStorage.getItem("registeredDeviceTokens");
   const tokensMap = saved ? JSON.parse(saved) : {};
   if (tokensMap[userId.value]) {
     deviceAlreadyRegistered.value = true;
@@ -170,10 +170,10 @@ const registerDevice = async () => {
     );
     successMessage.value = "Urządzenie zostało pomyślnie zarejestrowane!";
 
-    const saved = localStorage.getItem("registeredDeviceTokens");
+    const saved = sessionStorage.getItem("registeredDeviceTokens");
     const tokensMap = saved ? JSON.parse(saved) : {};
     tokensMap[userId.value] = getRegistrationToken();
-    localStorage.setItem("registeredDeviceTokens", JSON.stringify(tokensMap));
+    sessionStorage.setItem("registeredDeviceTokens", JSON.stringify(tokensMap));
 
     deviceAlreadyRegistered.value = true;
   } catch (error) {
@@ -186,7 +186,7 @@ const registerDevice = async () => {
 };
 
 const resetDevice = async () => {
-  const saved = localStorage.getItem("registeredDeviceTokens");
+  const saved = sessionStorage.getItem("registeredDeviceTokens");
   const tokensMap = saved ? JSON.parse(saved) : {};
   const userToken = tokensMap[userId.value];
   if (!userToken) {
@@ -204,7 +204,7 @@ const resetDevice = async () => {
     );
     resetMessage.value = "Urządzenie zostało zresetowane.";
     delete tokensMap[userId.value];
-    localStorage.setItem("registeredDeviceTokens", JSON.stringify(tokensMap));
+    sessionStorage.setItem("registeredDeviceTokens", JSON.stringify(tokensMap));
     deviceAlreadyRegistered.value = false;
     successMessage.value = null;
   } catch (error) {
