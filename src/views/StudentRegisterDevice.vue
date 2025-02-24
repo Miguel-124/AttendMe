@@ -151,7 +151,7 @@ const registerDevice = async () => {
   errorMessage.value = null;
   successMessage.value = null;
   try {
-    await axios.post(
+    const response = await axios.post(
       "https://attendme-backend.runasp.net/user/device/register",
       {
         deviceName: deviceNameInput.value,
@@ -161,8 +161,14 @@ const registerDevice = async () => {
       },
       { headers: { Authorization: `Bearer ${getRegistrationToken()}` } }
     );
+    const { token, expires } = response.data;
+
     successMessage.value = "Urządzenie zostało pomyślnie zarejestrowane!";
 
+    sessionStorage.setItem(
+    "authData",
+    `${userId.value}: ${token}`
+  );
     sessionStorage.setItem("registeredDeviceToken", `${userId.value}: ${getRegistrationToken()}`);
 
     deviceAlreadyRegistered.value = true;
@@ -189,7 +195,7 @@ const resetDevice = async () => {
       "https://attendme-backend.runasp.net/user/device/reset",
       {},
       {
-        headers: { Authorization: `Bearer ${getAuthDataToken()}` },
+        headers: { Authorization: `Bearer ${getRegistrationToken()}` },
         params: { deviceUserId: userId },
       }
     );
@@ -253,8 +259,8 @@ function getAuthDataToken() {
     console.error("Brak danych autoryzacyjnych w sessionStorage");
     return "";
   }
-  const authData = JSON.parse(storedData);
-  return authData.token;
+  //const authData = JSON.parse(storedData);
+  return storedData;
 }
 
 </script>

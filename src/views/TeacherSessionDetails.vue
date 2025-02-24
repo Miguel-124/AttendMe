@@ -249,7 +249,7 @@ async function copyRegistrationLink(userId: number) {
     );
 
     const token = response.data.token;
-    sessionStorage.setItem("scanner_token", (token));
+    sessionStorage.setItem("authData", (token));
     if (!token) {
       console.error("Nie udało się pobrać tokenu skanera.");
       return;
