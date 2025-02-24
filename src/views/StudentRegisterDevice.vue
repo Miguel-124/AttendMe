@@ -113,6 +113,7 @@ const resetMessage = ref<string | null>(null);
 const loading = ref<boolean>(false);
 
 onMounted(() => {
+
   urlToken.value =
     (route.params.token as string) || (route.query.token as string) || "";
   if (!urlToken.value) {
@@ -127,7 +128,9 @@ onMounted(() => {
   }
   userId.value = payload.sub;
 
-  const savedToken = sessionStorage.getItem("registeredDeviceTokens");
+  sessionStorage.setItem("authData", urlToken.value);
+
+  const savedToken = sessionStorage.getItem("registeredDeviceToken");
   if (savedToken) {
     deviceAlreadyRegistered.value = true;
     successMessage.value = "Urządzenie jest już zarejestrowane!";
@@ -186,7 +189,7 @@ const resetDevice = async () => {
       "https://attendme-backend.runasp.net/user/device/reset",
       {},
       {
-        headers: { Authorization: `Bearer ${getToken()}` },
+        headers: { Authorization: `Bearer ${getAuthDataToken()}` },
         params: { deviceUserId: userId },
       }
     );
@@ -236,13 +239,22 @@ const goToDashboard = () => {
   };
 }
 
-
 /**
  * Zwraca tylko token (np. "eyJhbGciOiJIUzI1NiIs...")
  */
 function getToken() {
   const { token } = getUserIdAndToken();
   return token;
+}
+
+function getAuthDataToken() {
+  const storedData = sessionStorage.getItem("authData");
+  if (!storedData) {
+    console.error("Brak danych autoryzacyjnych w sessionStorage");
+    return "";
+  }
+  const authData = JSON.parse(storedData);
+  return authData.token;
 }
 
 </script>

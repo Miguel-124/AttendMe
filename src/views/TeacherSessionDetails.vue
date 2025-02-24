@@ -493,7 +493,8 @@ onMounted(async () => {
   await fetchAttendanceList();
   await fetchSessions();
   await fetchDevicesForAttendance();
-  refreshInterval = window.setInterval(fetchAttendanceList, 2000);
+  //refreshInterval = window.setInterval(fetchAttendanceList, 2000);
+  //refreshInterval = window.setInterval(fetchSessions, 2000);
 });
 
 onUnmounted(() => {
