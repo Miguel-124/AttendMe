@@ -421,11 +421,18 @@ async function resetDevice() {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+    if (selectedAttender.value) {
+      selectedAttender.value.deviceName = "Brak zarejestrowanego urządzenia";
+    }
     resetMessage.value = "Pomyślnie zresetowano urządzenie!";
+    setTimeout(() => {
+      closeDeviceModal();
+    }, 3000);
   } catch (error) {
     console.error("Błąd resetowania urządzenia:", error);
     resetMessage.value = "Wystąpił błąd przy resetowaniu urządzenia.";
   }
+
 }
 
 function closeDeviceModal() {
