@@ -7,6 +7,7 @@
     <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
     <div v-if="loading" class="loading">Trwa rejestracja urządzenia...</div>
 
+    <!-- Sekcja, gdy urządzenie jest już zarejestrowane -->
     <div v-if="deviceAlreadyRegistered" class="success-container">
       <h1 class="title">Urządzenie zarejestrowane</h1>
       <p class="subtitle">
@@ -22,7 +23,8 @@
       </button>
       <p v-if="resetMessage" class="reset-message">{{ resetMessage }}</p>
     </div>
-
+    
+    <!-- Sekcja formularza rejestracji, gdy urządzenie nie jest zarejestrowane -->
     <div v-else class="form-container">
       <h1 class="title register">Rejestracja urządzenia</h1>
       <p class="subtitle register">
@@ -70,6 +72,13 @@
           {{ loading ? "Rejestracja..." : "Zarejestruj" }}
         </button>
       </form>
+      <!-- POP-UP z komunikatem o zresetowaniu urządzenia -->
+    <transition name="fade">
+      <div v-if="showResetPopup" class="reset-popup">
+        Urządzenie zostało zresetowane!
+      </div>
+    </transition>
+
     </div>
   </div>
 </template>
@@ -78,10 +87,8 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
-import dayjs from "dayjs";
-import "dayjs/locale/pl";
-dayjs.locale("pl");
 
+/** Funkcja pomocnicza do dekodowania JWT i sprawdzenia "sub" */
 function parseJwt(token: string) {
   const base64Url = token.split(".")[1];
   if (!base64Url) return null;
@@ -94,6 +101,7 @@ function parseJwt(token: string) {
   }
 }
 
+// Reaktywne zmienne
 const route = useRoute();
 const router = useRouter();
 
@@ -111,11 +119,13 @@ const errorMessage = ref<string | null>(null);
 const successMessage = ref<string | null>(null);
 const resetMessage = ref<string | null>(null);
 const loading = ref<boolean>(false);
+const showResetPopup = ref(false);
 
+/** Po załadowaniu komponentu pobieramy token z URL i sprawdzamy, czy urządzenie już zarejestrowane */
 onMounted(() => {
-
   urlToken.value =
     (route.params.token as string) || (route.query.token as string) || "";
+
   if (!urlToken.value) {
     errorMessage.value = "Brak tokenu rejestracyjnego w adresie URL.";
     return;
@@ -126,22 +136,18 @@ onMounted(() => {
     errorMessage.value = "Token rejestracyjny jest nieprawidłowy.";
     return;
   }
+
   userId.value = payload.sub;
 
-  sessionStorage.setItem("authData", urlToken.value);
-
+  // Czy w sessionStorage istnieje klucz "registeredDeviceToken"?
   const savedToken = sessionStorage.getItem("registeredDeviceToken");
   if (savedToken) {
     deviceAlreadyRegistered.value = true;
     successMessage.value = "Urządzenie jest już zarejestrowane!";
   }
-
 });
 
-function getRegistrationToken() {
-  return urlToken.value;
-}
-
+/** Funkcja do rejestracji urządzenia */
 const registerDevice = async () => {
   if (!urlToken.value) {
     errorMessage.value = "Brak tokenu. Sprawdź poprawność linku.";
@@ -159,110 +165,55 @@ const registerDevice = async () => {
         studentSurname: lastName.value,
         albumIdNumber: studentId.value,
       },
-      { headers: { Authorization: `Bearer ${getRegistrationToken()}` } }
+      { headers: { Authorization: `Bearer ${urlToken.value}` } }
     );
-    const { token, expires } = response.data;
 
+    // Serwer zwraca np. { token, expires }
+    const { token } = response.data;
     successMessage.value = "Urządzenie zostało pomyślnie zarejestrowane!";
 
-    sessionStorage.setItem(
-    "authData",
-    `${userId.value}: ${token}`
-  );
-    sessionStorage.setItem("registeredDeviceToken", `${userId.value}: ${getRegistrationToken()}`);
+    // Zapiszemy w sessionStorage docelowy token (z userId, jeśli chcesz)
+    sessionStorage.setItem("registeredDeviceToken", `${userId.value}: ${token}`);
 
     deviceAlreadyRegistered.value = true;
   } catch (error) {
     console.error("Błąd rejestracji urządzenia:", error);
-    errorMessage.value =
-      "Nie udało się zarejestrować urządzenia. Spróbuj ponownie.";
+    errorMessage.value = "Nie udało się zarejestrować urządzenia. Spróbuj ponownie.";
   } finally {
     loading.value = false;
   }
 };
 
-const resetDevice = async () => {
-  // Pobieramy userId i token z sessionStorage
-  const { userId, token } = getUserIdAndToken();
-  
-  // Jeśli nie ma userId lub tokenu, przerywamy
-  if (!userId || !token) {
+/** Reset urządzenia - TYLKO usunięcie tokenu z sessionStorage, bez wywołania API */
+function resetDevice() {
+  const stored = sessionStorage.getItem("registeredDeviceToken");
+  if (!stored) {
     resetMessage.value = "Brak zarejestrowanego urządzenia.";
     return;
   }
-  try {
-    await axios.post(
-      "https://attendme-backend.runasp.net/user/device/reset",
-      {},
-      {
-        headers: { Authorization: `Bearer ${getRegistrationToken()}` },
-        params: { deviceUserId: userId },
-      }
-    );
-    resetMessage.value = "Urządzenie zostało zresetowane.";
+  // Usuwamy token z sessionStorage
+  sessionStorage.removeItem("registeredDeviceToken");
+  deviceAlreadyRegistered.value = false;
+  successMessage.value = null;
 
-    // Usuwamy wpis z sessionStorage, bo urządzenie jest zresetowane
-    sessionStorage.removeItem("registeredDeviceToken");
+  // Ustawiamy popup na true
+  showResetPopup.value = true;
+  // Ukrywamy popup po 3 sekundach
+  setTimeout(() => {
+    showResetPopup.value = false;
+  }, 3000);
+}
 
-    deviceAlreadyRegistered.value = false;
-    successMessage.value = null;
-  } catch (error) {
-    console.error("Błąd resetowania urządzenia:", error);
-    resetMessage.value = "Nie udało się zresetować urządzenia.";
-  }
-};
-
-const goToScan = () => {
+/** Przejście do ekranu skanowania */
+function goToScan() {
   const baseUrl = window.location.origin;
-
   window.location.href = `${baseUrl}/student/generate-qr`;
-};
+}
 
-const goToDashboard = () => {
+/** Przejście do "pulpitu" (np. strona główna) */
+function goToDashboard() {
   router.push("/#");
-};
-
-/**
- * Zwraca obiekt { userId, token }
- * jeśli w sessionStorage mamy zapis w formacie "userId: token".
- */
- function getUserIdAndToken() {
-  const stored = sessionStorage.getItem("registeredDeviceToken");
-  if (!stored) {
-    console.error("Brak danych autoryzacyjnych w sessionStorage");
-    return { userId: "", token: "" };
-  }
-
-  const parts = stored.split(": ");
-  if (parts.length < 2) {
-    console.error("Nieprawidłowy format. Oczekiwano 'userId: token'");
-    return { userId: "", token: "" };
-  }
-
-  return {
-    userId: parts[0],  // np. "23"
-    token: parts[1],   // np. "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-  };
 }
-
-/**
- * Zwraca tylko token (np. "eyJhbGciOiJIUzI1NiIs...")
- */
-function getToken() {
-  const { token } = getUserIdAndToken();
-  return token;
-}
-
-function getAuthDataToken() {
-  const storedData = sessionStorage.getItem("authData");
-  if (!storedData) {
-    console.error("Brak danych autoryzacyjnych w sessionStorage");
-    return "";
-  }
-  //const authData = JSON.parse(storedData);
-  return storedData;
-}
-
 </script>
 
 <style scoped>
@@ -329,7 +280,6 @@ input {
   cursor: pointer;
   font-weight: bold;
 }
-
 .submit-button:hover {
   background-color: #005c34;
 }
@@ -368,7 +318,6 @@ input {
   background-color: #007b45;
   color: white;
 }
-
 .scan-button:hover {
   background-color: #005c34;
 }
@@ -377,7 +326,6 @@ input {
   background-color: #f5a623;
   color: white;
 }
-
 .dashboard-button:hover {
   background-color: #d98e18;
 }
@@ -386,7 +334,6 @@ input {
   background-color: #d9534f;
   color: white;
 }
-
 .reset-button:hover {
   background-color: #c9302c;
 }
@@ -396,4 +343,30 @@ input {
   font-weight: bold;
   color: #28a745;
 }
+
+/* Animacja fade-in / fade-out */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Wygląd i pozycja pop-upu */
+.reset-popup {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #28a745; /* zielone tło */
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  z-index: 9999;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
 </style>
