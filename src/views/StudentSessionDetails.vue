@@ -38,18 +38,18 @@
         </div>
 
         <p class="session-info">
-          <span>Termin:</span>
+          <span>Termin: </span>
           <strong>{{ formatDate(sessionDetails.dateStart) }}</strong>
         </p>
         <p class="session-info">
-          <span>Godziny:</span>
+          <span>Godziny: </span>
           <strong
             >{{ formatTime(sessionDetails.dateStart) }} -
             {{ formatTime(sessionDetails.dateEnd) }}</strong
           >
         </p>
         <p class="session-info">
-          <span>Lokalizacja:</span>
+          <span>Lokalizacja: </span>
           <strong>{{ sessionDetails.locationName }}</strong>
         </p>
 
@@ -357,7 +357,7 @@ onMounted(() => {
 }
 
 .course-title {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: bold;
   font-family: "Arial", sans-serif;
   color: #000;
@@ -382,7 +382,8 @@ onMounted(() => {
 }
 
 .session-info span {
-  font-weight: normal;
+  font-weight: bold;
+  color: #007b45;
 }
 
 .session-info strong {

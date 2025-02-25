@@ -47,36 +47,37 @@
 
     <!-- Lista zajęć -->
     <div class="container">
-      <div
-        v-if="filteredSessions.length === 0"
-        class="alert alert-warning mt-2"
-      >
-        Nie znaleziono zajęć spełniających kryteria wyszukiwania.
-      </div>
-      <ul class="session-list">
-        <li
-          v-for="session in filteredSessions"
-          :key="session.courseSessionId"
-          class="session-item"
-        >
-          <div
-            class="session-header session-time"
-            v-html="formatSessionDate(session.dateStart, session.dateEnd)"
-          ></div>
+      <div v-if="filteredSessions.length === 0" class="no-sessions-alert">
+      <i class="fas fa-exclamation-circle"></i>
+      Nie znaleziono zajęć spełniających kryteria wyszukiwania.
+    </div>
 
-          <div class="session-content">
-            <h4>{{ session.courseName }}</h4>
-            <p>{{ session.locationName }}</p>
-            <p>{{ session.courseGroupName }}</p>
-          </div>
-          <button
-            class="btn-details"
-            @click="openSession(session.courseSessionId)"
-          >
-            Szczegóły
-          </button>
-        </li>
-      </ul>
+    <ul class="session-list">
+      <li
+        v-for="session in filteredSessions"
+        :key="session.courseSessionId"
+        class="session-item"
+      >
+        <!-- Sekcja daty i godziny -->
+        <div class="session-time" v-html="formatSessionDate(session.dateStart, session.dateEnd)"></div>
+
+        <!-- Sekcja z opisem zajęć -->
+        <div class="session-content">
+          <h4>{{ session.courseName }}</h4>
+          <p>{{ session.locationName }}</p>
+          <p>{{ session.courseGroupName }}</p>
+        </div>
+
+        <!-- Przycisk szczegółów -->
+        <button
+          class="btn-details"
+          @click="openSession(session.courseSessionId)"
+        >
+          Szczegóły
+        </button>
+      </li>
+    </ul>
+
     </div>
   </div>
 </template>
@@ -211,7 +212,7 @@ async function fetchSessions() {
       }
     );
 
-    sessions.value = response.data.items || []; // 🔥 Teraz sessions.value jest tablicą
+    sessions.value = response.data.items || [];
   } catch (error) {
     console.error("Błąd pobierania sesji ucznia:", error);
   }
@@ -377,49 +378,99 @@ h5 {
   color: #000000;
 }
 
+/* Kontener listy */
 .session-list {
   list-style: none;
   padding: 0;
+  margin: 0 auto;
+  max-width: 800px;
 }
 
-h4 {
-  font-size: 20px;
-  font-weight: bold;
-  color: #000000;
-  margin-bottom: 5px;
-}
-
+/* Każdy element listy */
 .session-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px;
-  margin: 10px 30px;
+  justify-content: space-between;
   background: #ffffff;
-  border-radius: 5px;
+  border-radius: 8px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  font-weight: bold;
+  padding: 15px 20px;
+  margin: 15px 0;
   color: #000000;
+  transition: transform 0.2s ease;
+}
+.session-item:hover {
+  transform: scale(1.01);
 }
 
-.session-header {
-  font-size: 16px;
+/* Sekcja daty/godziny (po lewej) */
+.session-time {
+  min-width: 200px;
+  text-align: center;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-right: 20px;
+  border-right: 2px solid #eee;
+  padding-right: 20px;
   font-weight: bold;
-  color: #000000;
 }
 
+/* Sekcja z nazwą przedmiotu, lokalizacją, grupą */
+.session-content {
+  flex: 1;
+  margin-left: 20px;
+}
+
+.session-content h4 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 6px;
+}
+
+.session-content p {
+  margin: 2px 0;
+  font-size: 14px;
+  color: #555;
+  font-weight: bold;
+}
+
+/* Przycisk "Szczegóły" */
 .btn-details {
-  background: #007bff;
+  background: #14ad00;
   color: white;
   font-size: 16px;
   border: none;
-  padding: 8px 12px;
+  padding: 10px 16px;
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
+  margin-left: 20px;
+  align-self: flex-start;
 }
-
 .btn-details:hover {
   background: #0056b3;
 }
+
+.no-sessions-alert {
+  margin: 20px auto;
+  max-width: 500px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  color: #412e00;
+  padding: 15px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.no-sessions-alert i {
+  font-size: 20px;
+}
+
 </style>
