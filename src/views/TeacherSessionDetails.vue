@@ -424,6 +424,7 @@ async function resetDevice() {
     if (selectedAttender.value) {
       selectedAttender.value.deviceName = "Brak zarejestrowanego urządzenia";
     }
+    
     resetMessage.value = "Pomyślnie zresetowano urządzenie!";
     setTimeout(() => {
       closeDeviceModal();
