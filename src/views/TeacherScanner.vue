@@ -10,7 +10,7 @@
       <!-- Podgląd z kamery -->
       <video ref="video" autoplay playsinline class="camera-feed"></video>
       <!-- Ukryty element canvas do przechwytywania klatek wideo -->
-      <canvas ref="canvas" style="display: none;"></canvas>
+      <canvas ref="canvas" style="display: none"></canvas>
 
       <!-- MODAL z dwoma przejściami: fade (dla tła) i scale (dla treści) -->
       <transition name="modal-fade">
@@ -19,8 +19,8 @@
             <div v-if="showPopUpModal" class="modal-content">
               <h2 class="modal-title">ZAREJESTROWANO OBECNOŚĆ</h2>
               <p class="modal-text" v-if="responseData">
-                {{ responseData.name }} {{ responseData.surname }} 
-                Nr Albumu: {{ responseData.student.albumIdNumber }}
+                {{ responseData.name }} {{ responseData.surname }} Nr Albumu:
+                {{ responseData.student.albumIdNumber }}
               </p>
             </div>
           </transition>
@@ -42,35 +42,28 @@ export default defineComponent({
       videoStream: null as MediaStream | null,
       qrResult: null as string | null,
       scanInterval: undefined as number | undefined,
-      loading: true, // flaga do wyświetlania komunikatu "Ładowanie skanera..."
-      showPopUpModal: false, // steruje widocznością modala
-      responseData: null as unknown, // lub zdefiniuj interfejs TS, jeśli chcesz
-
+      loading: true,
+      showPopUpModal: false,
+      responseData: null as unknown,
     };
   },
-  
+
   mounted() {
-    // Odczyt tokena z parametru trasy lub query
     const token = this.$route.params.token || this.$route.query.token;
-    if (typeof token === 'string') {
+    if (typeof token === "string") {
       sessionStorage.setItem("scanner_token", token);
     }
     this.startCamera();
   },
   beforeUnmount() {
-    // Zatrzymanie strumienia kamery przy zamknięciu komponentu
     if (this.videoStream) {
       this.videoStream.getTracks().forEach((track) => track.stop());
     }
     clearInterval(this.scanInterval);
   },
   methods: {
-    /**
-     * Prośba o dostęp do kamery i włączenie skanowania
-     */
     async startCamera() {
       try {
-        // Żądanie dostępu do kamery (preferowana tylna kamera)
         this.videoStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "environment" },
         });
@@ -87,9 +80,6 @@ export default defineComponent({
       }
     },
 
-    /**
-     * Co 500 ms przechwytujemy klatkę wideo i szukamy w niej kodu QR
-     */
     startScanning() {
       this.scanInterval = window.setInterval(() => {
         const video = this.$refs.video as HTMLVideoElement;
@@ -102,22 +92,24 @@ export default defineComponent({
 
           context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+          const imageData = context.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+          );
           const code = jsQR(imageData.data, canvas.width, canvas.height);
 
           if (code) {
-            // Odczytany kod
             this.qrResult = code.data;
             console.log("Zeskanowany kod:", this.qrResult);
 
-            // Zatrzymanie dalszego skanowania
             clearInterval(this.scanInterval);
 
-            // Wywołujemy funkcję rejestrującą obecność (GET request)
             this.registerAttendance(this.qrResult);
           }
         }
-      }, 500); // Skanowanie co 500ms
+      }, 500);
     },
 
     async registerAttendance(attenderToken: string) {
@@ -125,23 +117,19 @@ export default defineComponent({
         const response = await axios.get(
           `https://attendme-backend.runasp.net/course/session/attendance/register?attenderToken=${attenderToken}`,
           {
-        headers: { Authorization: `Bearer ${getToken()}` },
-        }
-      );
+            headers: { Authorization: `Bearer ${getToken()}` },
+          }
+        );
         console.log("Odpowiedź z backendu:", response.data);
         this.responseData = response.data;
 
-        // Po pomyślnym zarejestrowaniu obecności – pokaż modal
         this.showPopUpModal = true;
 
-        // Automatycznie schowaj modal po 5 sekundach
         setTimeout(() => {
           this.showPopUpModal = false;
         }, 5000);
-
       } catch (error) {
         console.error("Błąd rejestracji obecności:", error);
-        // W razie potrzeby można wyświetlić modal z błędem
       }
     },
   },
@@ -158,9 +146,8 @@ function getToken() {
 </script>
 
 <style scoped>
-/* Kontener całej strony (ciemne tło, wycentrowanie) */
 .page-container {
-  background-color: #1c1c1c; /* ciemne tło */
+  background-color: #1c1c1c;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -168,7 +155,6 @@ function getToken() {
   padding: 20px;
 }
 
-/* Biała karta w centrum */
 .scanner-container {
   background-color: #fff;
   width: 90%;
@@ -177,7 +163,6 @@ function getToken() {
   text-align: center;
 }
 
-/* Logo */
 .logo {
   width: 100px;
   height: auto;
@@ -185,7 +170,6 @@ function getToken() {
   margin-bottom: 10px;
 }
 
-/* Tytuł */
 .title {
   font-size: 24px;
   font-weight: bold;
@@ -193,7 +177,6 @@ function getToken() {
   margin-bottom: 10px;
 }
 
-/* Podgląd z kamery */
 .camera-feed {
   width: 100%;
   border: 1px solid #ccc;
@@ -201,9 +184,6 @@ function getToken() {
   margin-top: 10px;
 }
 
-/* ========== MODAL + PRZEJŚCIA ========== */
-
-/* Tło (backdrop) za modalem */
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -217,7 +197,6 @@ function getToken() {
   justify-content: center;
 }
 
-/* Zawartość modala */
 .modal-content {
   background-color: #fff;
   border-radius: 10px;
@@ -226,7 +205,6 @@ function getToken() {
   text-align: center;
 }
 
-/* Tytuł modala */
 .modal-title {
   margin-bottom: 10px;
   font-size: 20px;
@@ -234,14 +212,12 @@ function getToken() {
   font-weight: bold;
 }
 
-/* Tekst w modalu */
 .modal-text {
   margin-bottom: 10px;
   font-size: 16px;
   color: #333;
 }
 
-/* FADE: wchodzenie/wychodzenie tła (modal-backdrop) */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: opacity 0.3s;
@@ -251,7 +227,6 @@ function getToken() {
   opacity: 0;
 }
 
-/* SCALE: wchodzenie/wychodzenie zawartości (modal-content) */
 .modal-scale-enter-active,
 .modal-scale-leave-active {
   transition: transform 0.3s;

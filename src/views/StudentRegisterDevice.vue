@@ -23,7 +23,7 @@
       </button>
       <p v-if="resetMessage" class="reset-message">{{ resetMessage }}</p>
     </div>
-    
+
     <!-- Sekcja formularza rejestracji, gdy urządzenie nie jest zarejestrowane -->
     <div v-else class="form-container">
       <h1 class="title register">Rejestracja urządzenia</h1>
@@ -73,12 +73,11 @@
         </button>
       </form>
       <!-- POP-UP z komunikatem o zresetowaniu urządzenia -->
-    <transition name="fade">
-      <div v-if="showResetPopup" class="reset-popup">
-        Urządzenie zostało zresetowane!
-      </div>
-    </transition>
-
+      <transition name="fade">
+        <div v-if="showResetPopup" class="reset-popup">
+          Urządzenie zostało zresetowane!
+        </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -173,44 +172,42 @@ const registerDevice = async () => {
     successMessage.value = "Urządzenie zostało pomyślnie zarejestrowane!";
 
     // Zapiszemy w sessionStorage docelowy token (z userId, jeśli chcesz)
-    sessionStorage.setItem("registeredDeviceToken", `${userId.value}: ${token}`);
+    sessionStorage.setItem(
+      "registeredDeviceToken",
+      `${userId.value}: ${token}`
+    );
 
     deviceAlreadyRegistered.value = true;
   } catch (error) {
     console.error("Błąd rejestracji urządzenia:", error);
-    errorMessage.value = "Nie udało się zarejestrować urządzenia. Spróbuj ponownie.";
+    errorMessage.value =
+      "Nie udało się zarejestrować urządzenia. Spróbuj ponownie.";
   } finally {
     loading.value = false;
   }
 };
 
-/** Reset urządzenia - TYLKO usunięcie tokenu z sessionStorage, bez wywołania API */
 function resetDevice() {
   const stored = sessionStorage.getItem("registeredDeviceToken");
   if (!stored) {
     resetMessage.value = "Brak zarejestrowanego urządzenia.";
     return;
   }
-  // Usuwamy token z sessionStorage
   sessionStorage.removeItem("registeredDeviceToken");
   deviceAlreadyRegistered.value = false;
   successMessage.value = null;
 
-  // Ustawiamy popup na true
   showResetPopup.value = true;
-  // Ukrywamy popup po 3 sekundach
   setTimeout(() => {
     showResetPopup.value = false;
   }, 3000);
 }
 
-/** Przejście do ekranu skanowania */
 function goToScan() {
   const baseUrl = window.location.origin;
   window.location.href = `${baseUrl}/student/generate-qr`;
 }
 
-/** Przejście do "pulpitu" (np. strona główna) */
 function goToDashboard() {
   router.push("/#");
 }
@@ -344,7 +341,6 @@ input {
   color: #28a745;
 }
 
-/* Animacja fade-in / fade-out */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s;
@@ -354,19 +350,17 @@ input {
   opacity: 0;
 }
 
-/* Wygląd i pozycja pop-upu */
 .reset-popup {
   position: fixed;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #28a745; /* zielone tło */
+  background-color: #28a745;
   color: #fff;
   padding: 10px 20px;
   border-radius: 8px;
   z-index: 9999;
   font-weight: bold;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
-
 </style>

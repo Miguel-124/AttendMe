@@ -51,7 +51,7 @@
         <i class="fas fa-exclamation-circle"></i>
         Nie znaleziono zajęć spełniających kryteria wyszukiwania.
       </div>
-      
+
       <ul class="session-list">
         <li
           v-for="session in filteredSessions"
@@ -59,7 +59,10 @@
           class="session-item"
         >
           <!-- Sekcja daty i godziny -->
-          <div class="session-time" v-html="formatSessionDate(session.dateStart, session.dateEnd)"></div>
+          <div
+            class="session-time"
+            v-html="formatSessionDate(session.dateStart, session.dateEnd)"
+          ></div>
 
           <!-- Sekcja z opisem zajęć -->
           <div class="session-content">
@@ -77,7 +80,6 @@
           </button>
         </li>
       </ul>
-
     </div>
   </div>
 </template>

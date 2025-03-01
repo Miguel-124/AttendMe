@@ -271,6 +271,116 @@ onMounted(() => {
   background: white;
 }
 
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.course-title {
+  font-size: 26px;
+  font-weight: bold;
+  font-family: "Arial", sans-serif;
+  color: #000;
+}
+
+.attendance-status {
+  text-align: right;
+}
+
+.attendance-label {
+  padding-top: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: "Arial", sans-serif;
+  color: #000;
+}
+
+.session-info {
+  font-size: 16px;
+  color: #000;
+  margin: 5px 0;
+}
+
+.session-info span {
+  font-weight: bold;
+  color: #007b45;
+}
+
+.session-info strong {
+  font-weight: bold;
+}
+
+.btn-present {
+  background: #007b45;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  font-size: 20px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.btn-absent {
+  background: grey;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  font-size: 20px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.progress-bars {
+  margin-top: 20px;
+}
+
+.progress-container {
+  margin-bottom: 10px;
+}
+
+.progress-text {
+  font-size: 14px;
+  font-weight: normal;
+  color: #000;
+}
+
+.progress-text strong {
+  font-weight: bold;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 15px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  text-align: center;
+  line-height: 15px;
+  font-size: 12px;
+}
+
+.red {
+  background: red;
+}
+
+.blue {
+  background: #007bff;
+}
+
+/* .session-details {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 8px;
+  background: white;
+}
+
 .navbar {
   background-color: #ffffff;
   padding: 10px 20px;
@@ -449,5 +559,5 @@ onMounted(() => {
 
 .blue {
   background: #007bff;
-}
+} */
 </style>

@@ -48,36 +48,38 @@
     <!-- Lista zajęć -->
     <div class="container">
       <div v-if="filteredSessions.length === 0" class="no-sessions-alert">
-      <i class="fas fa-exclamation-circle"></i>
-      Nie znaleziono zajęć spełniających kryteria wyszukiwania.
-    </div>
+        <i class="fas fa-exclamation-circle"></i>
+        Nie znaleziono zajęć spełniających kryteria wyszukiwania.
+      </div>
 
-    <ul class="session-list">
-      <li
-        v-for="session in filteredSessions"
-        :key="session.courseSessionId"
-        class="session-item"
-      >
-        <!-- Sekcja daty i godziny -->
-        <div class="session-time" v-html="formatSessionDate(session.dateStart, session.dateEnd)"></div>
-
-        <!-- Sekcja z opisem zajęć -->
-        <div class="session-content">
-          <h4>{{ session.courseName }}</h4>
-          <p>{{ session.locationName }}</p>
-          <p>{{ session.courseGroupName }}</p>
-        </div>
-
-        <!-- Przycisk szczegółów -->
-        <button
-          class="btn-details"
-          @click="openSession(session.courseSessionId)"
+      <ul class="session-list">
+        <li
+          v-for="session in filteredSessions"
+          :key="session.courseSessionId"
+          class="session-item"
         >
-          Szczegóły
-        </button>
-      </li>
-    </ul>
+          <!-- Sekcja daty i godziny -->
+          <div
+            class="session-time"
+            v-html="formatSessionDate(session.dateStart, session.dateEnd)"
+          ></div>
 
+          <!-- Sekcja z opisem zajęć -->
+          <div class="session-content">
+            <h4>{{ session.courseName }}</h4>
+            <p>{{ session.locationName }}</p>
+            <p>{{ session.courseGroupName }}</p>
+          </div>
+
+          <!-- Przycisk szczegółów -->
+          <button
+            class="btn-details"
+            @click="openSession(session.courseSessionId)"
+          >
+            Szczegóły
+          </button>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -218,13 +220,6 @@ async function fetchSessions() {
   }
 }
 
-watch(dateFilter, fetchSessions);
-
-onMounted(async () => {
-  await fetchUserData();
-  await fetchSessions();
-});
-
 const filteredSessions = computed(() => {
   return sessions.value.filter((session) => {
     const matchesSearch =
@@ -264,7 +259,11 @@ function toggleMenu() {
 }
 
 watch(dateFilter, fetchSessions);
-onMounted(fetchSessions);
+onMounted(async () => {
+  await fetchUserData();
+  await fetchSessions();
+  fetchSessions();
+});
 </script>
 
 <style scoped>
@@ -472,5 +471,4 @@ h5 {
 .no-sessions-alert i {
   font-size: 20px;
 }
-
 </style>
