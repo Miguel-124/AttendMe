@@ -7,6 +7,7 @@ import StudentDashboard from "../views/StudentDashboard.vue";
 import StudentRegisterDevice from "../views/StudentRegisterDevice.vue";
 import StudentSessionDetails from "../views/StudentSessionDetails.vue";
 import StudentGenerateQRCode from "../views/StudentGenerateQRCode.vue";
+import Dashboard from "@/views/Dashboard.vue";
 
 const routes = [
   { path: "/", component: LoginView },
@@ -17,6 +18,7 @@ const routes = [
   { path: "/student/register-device/:token", component: StudentRegisterDevice },
   { path: "/session/:id", component: StudentSessionDetails },
   { path: "/student/generate-qr", component: StudentGenerateQRCode },
+  { path: "/dashboard", component: Dashboard},
 ];
 
 const router = createRouter({
