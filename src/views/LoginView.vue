@@ -36,7 +36,9 @@
 import { ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/authStore";
 
+const authStore = useAuthStore();
 const email = ref("");
 const password = ref("");
 const errorMessage = ref("");
@@ -52,30 +54,38 @@ async function login() {
       throw new Error("Brak tokena w odpowiedzi serwera");
     }
 
-    const tokenData = response.data;
+    // Aktualizujemy stan autoryzacji w sklepie Pinia
+    authStore.setToken(response.data.token);
 
-    sessionStorage.setItem("authData", JSON.stringify(tokenData));
-
-    const storedData = sessionStorage.getItem("authData");
-
-    if (!storedData) {
-      throw new Error("Brak danych autoryzacyjnych w sessionStorage");
-    }
-    const authData = JSON.parse(storedData);
-
-    const user = await axios.get(
+    // Pobieramy dane użytkownika
+    const userResponse = await axios.get(
       `https://attendme-backend.runasp.net/user/get`,
       {
         headers: {
-          Authorization: `Bearer ${authData.token}`,
+          Authorization: `Bearer ${authStore.token}`,
         },
       }
     );
 
-    if (user.data.isStudent) {
-      router.push("/student");
-    } else if (user.data.isTeacher) {
-      router.push("/teacher");
+    // Ustawiamy dane użytkownika w sklepie
+    authStore.setUser({
+      id: userResponse.data.id,
+      name: userResponse.data.name,
+      surname: userResponse.data.surname,
+      role: userResponse.data.isTeacher
+        ? "Nauczyciel"
+        : userResponse.data.isStudent
+          ? "Uczeń"
+          : userResponse.data.isAdmin
+            ? "Administrator"
+            : "Nieznana rola",
+    });
+
+    // Przekierowanie na odpowiednią stronę w zależności od roli
+    if (userResponse.data.isStudent) {
+      router.push("/dashboard");
+    } else if (userResponse.data.isTeacher) {
+      router.push("/dashboard");
     } else {
       throw new Error("Nieznana rola użytkownika");
     }
