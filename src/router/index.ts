@@ -34,7 +34,7 @@ const routes = [
   {
     path: "/student/register-device/:token",
     component: StudentRegisterDevice,
-    meta: { requiresAuth: true },
+    //meta: { requiresAuth: true },
   },
   {
     path: "/session/:id",
@@ -44,7 +44,7 @@ const routes = [
   {
     path: "/student/generate-qr",
     component: StudentGenerateQRCode,
-    meta: { requiresAuth: true },
+    //meta: { requiresAuth: true },
   },
   { path: "/dashboard", component: Dashboard, meta: { requiresAuth: true } },
 ];

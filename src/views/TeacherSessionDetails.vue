@@ -598,7 +598,7 @@ button {
   justify-content: center;
   padding: 10px 16px;
   border: none;
-  font-size: 14px;
+  /* font-size: 14px; */
   font-weight: bold;
   cursor: pointer;
   border-radius: 30px;

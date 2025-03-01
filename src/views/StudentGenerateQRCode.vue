@@ -29,6 +29,7 @@ let refreshInterval: number | undefined = undefined;
 
 const fetchQRCode = async () => {
   try {
+    // Ustaw loading tylko przy pierwszym załadowaniu
     if (!qrCodeUrl.value) {
       loading.value = true;
     }
@@ -53,6 +54,7 @@ const fetchQRCode = async () => {
   }
 };
 
+
 onMounted(() => {
   fetchQRCode();
   refreshInterval = setInterval(fetchQRCode, 2000);
@@ -61,6 +63,7 @@ onMounted(() => {
 onUnmounted(() => {
   clearInterval(refreshInterval);
 });
+
 
 function getToken() {
   const stored = sessionStorage.getItem("registeredDeviceToken");
@@ -72,6 +75,7 @@ function getToken() {
   // Zakładamy, że format to "userId: token"
   return parts.length > 1 ? parts[1] : "";
 }
+
 </script>
 
 <style scoped>
@@ -98,8 +102,7 @@ function getToken() {
 }
 
 .qr-code img {
-  width: 80%;
-  height: 80%;
+  width: 70%;
   margin-top: 20px;
 }
 
@@ -120,4 +123,6 @@ function getToken() {
   font-weight: bold;
   color: red;
 }
+
+
 </style>
