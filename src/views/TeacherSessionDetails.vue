@@ -162,6 +162,7 @@
 </template>
 
 <script setup lang="ts">
+import { useAuthStore } from '@/stores/authStore';
 import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 import { useRoute } from "vue-router";
@@ -187,6 +188,10 @@ const resetMessage = ref("");
 
 const showQrModal = ref(false);
 const qrCodeUrl = ref("");
+const authStore = useAuthStore();
+const authToken = authStore.token;
+
+
 
 interface Attendance {
   attendanceLogId: number | null;
@@ -215,7 +220,7 @@ async function openQrScanner() {
       `https://attendme-backend.runasp.net/course/session/attendance/scanner/token/get`,
       {
         params: { courseSessionId: sessionId.value },
-        headers: { Authorization: `Bearer ${getToken()}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       }
     );
 
@@ -243,7 +248,7 @@ async function copyRegistrationLink(userId: number) {
       `https://attendme-backend.runasp.net/user/device/register/token/get`,
       {
         params: { deviceUserId: userId },
-        headers: { Authorization: `Bearer ${getToken()}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       }
     );
 
@@ -272,7 +277,7 @@ async function fetchSessions() {
         pageSize: 999999,
       },
       {
-        headers: { Authorization: `Bearer ${getToken()}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       }
     );
     session.value =
@@ -289,7 +294,7 @@ async function fetchUserData() {
     const response = await axios.get(
       "https://attendme-backend.runasp.net/user/get",
       {
-        headers: { Authorization: `Bearer ${getToken()}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       }
     );
     const userData = response.data;
@@ -311,7 +316,7 @@ async function fetchAttendanceList() {
   try {
     const response = await axios.get<Attendance[]>(
       `https://attendme-backend.runasp.net/course/session/attendance-list/get?sessionId=${sessionId.value}`,
-      { headers: { Authorization: `Bearer ${getToken()}` } }
+      { headers: { Authorization: `Bearer ${authToken}` } }
     );
     attendanceList.value = response.data;
   } catch (error) {
@@ -323,13 +328,12 @@ async function fetchDevicesForAttendance() {
   await Promise.all(
     attendanceList.value.map(async (attender) => {
       try {
-        const token = getToken();
-        if (!token) return;
+        if (!authToken) return;
         const response = await axios.get(
           "https://attendme-backend.runasp.net/user/get",
           {
             params: { userId: attender.attenderUserId },
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${authToken}` },
           }
         );
         const data = response.data;
@@ -346,8 +350,7 @@ async function fetchDevicesForAttendance() {
 }
 
 async function toggleAttendance(attender: Attendance) {
-  const token = getToken();
-  if (!token) return;
+  if (!authToken) return;
   const newStatus = !attender.wasUserPresent;
   try {
     await axios.get(
@@ -358,7 +361,7 @@ async function toggleAttendance(attender: Attendance) {
           courseSessionId: sessionId.value,
           addOrRemove: newStatus,
         },
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       }
     );
     attender.wasUserPresent = newStatus;
@@ -384,13 +387,12 @@ function openDeviceModal(attender: Attendance) {
 
 async function getUserDeviceName(userId: number) {
   try {
-    const token = getToken();
-    if (!token) return;
+    if (!authToken) return;
     const response = await axios.get(
       "https://attendme-backend.runasp.net/user/get",
       {
         params: { userId },
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       }
     );
     const data = response.data;
@@ -409,7 +411,7 @@ async function getUserDeviceName(userId: number) {
 async function resetDevice() {
   try {
     if (!selectedAttender.value) return;
-    const token = getToken();
+    const token = authStore.token;
     if (!token) return;
     const deviceUserId = selectedAttender.value.attenderUserId;
     await axios.post(
@@ -464,15 +466,15 @@ function getDeviceButtonText(attender: Attendance) {
   }
 }
 
-function getToken() {
-  const storedData = sessionStorage.getItem("authData");
-  if (!storedData) {
-    console.error("Brak danych autoryzacyjnych w sessionStorage");
-    return "";
-  }
-  const authData = JSON.parse(storedData);
-  return authData.token;
-}
+// function getToken() {
+//   const storedData = sessionStorage.getItem("authData");
+//   if (!storedData) {
+//     console.error("Brak danych autoryzacyjnych w sessionStorage");
+//     return "";
+//   }
+//   const authData = JSON.parse(storedData);
+//   return authData.token;
+// }
 
 function formatDate(date: string): string {
   return dayjs(date).format("DD.MM.YYYY");

@@ -34,7 +34,6 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import axios from "axios";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -46,46 +45,14 @@ const router = useRouter();
 
 async function login() {
   try {
-    const response = await axios.post(
-      `https://attendme-backend.runasp.net/user/login?loginName=${encodeURIComponent(email.value)}&password=${encodeURIComponent(password.value)}`
-    );
-
-    if (!response.data.token) {
-      throw new Error("Brak tokena w odpowiedzi serwera");
-    }
-
-    authStore.setToken(response.data.token);
-
-    const userResponse = await axios.get(
-      `https://attendme-backend.runasp.net/user/get`,
-      {
-        headers: {
-          Authorization: `Bearer ${authStore.token}`,
-        },
-      }
-    );
-
-    authStore.setUser({
-      id: userResponse.data.id,
-      name: userResponse.data.name,
-      surname: userResponse.data.surname,
-      role: userResponse.data.isTeacher
-        ? "Nauczyciel"
-        : userResponse.data.isStudent
-          ? "Uczeń"
-          : "Nieznana rola",
-    });
-
-    if (userResponse.data) {
-      router.push("/dashboard");
-    } else {
-      throw new Error("Nieznana rola użytkownika");
-    }
+    await authStore.login(email.value, password.value);
+    router.push("/dashboard");
   } catch (error) {
     console.error("Błąd logowania:", error);
     errorMessage.value = "Błędny login lub hasło!";
   }
 }
+
 </script>
 
 <style scoped>

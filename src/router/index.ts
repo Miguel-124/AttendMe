@@ -37,27 +37,31 @@ const router = createRouter({
   routes,
 });
 
+function showLogoutPopup() {
+  const popup = document.createElement("div");
+  popup.innerText = "Zostałeś wylogowany, zaloguj się ponownie";
+  popup.style.position = "fixed";
+  popup.style.top = "20px";
+  popup.style.left = "50%";
+  popup.style.transform = "translateX(-50%)";
+  popup.style.backgroundColor = "#28a745";
+  popup.style.color = "white";
+  popup.style.padding = "10px 20px";
+  popup.style.borderRadius = "8px";
+  popup.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+  popup.style.zIndex = "10000";
+  document.body.appendChild(popup);
+
+  setTimeout(() => {
+    document.body.removeChild(popup);
+    router.push("/");
+  }, 2000);
+}
+
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (!sessionStorage.getItem("authData")) {
-      const popup = document.createElement("div");
-      popup.innerText = "Zostałeś wylogowany, zaloguj się ponownie";
-      popup.style.position = "fixed";
-      popup.style.top = "20px";
-      popup.style.left = "50%";
-      popup.style.transform = "translateX(-50%)";
-      popup.style.backgroundColor = "#28a745";
-      popup.style.color = "white";
-      popup.style.padding = "10px 20px";
-      popup.style.borderRadius = "8px";
-      popup.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
-      popup.style.zIndex = "10000";
-      document.body.appendChild(popup);
-
-      setTimeout(() => {
-        document.body.removeChild(popup);
-        router.push("/");
-      }, 2000);
+      showLogoutPopup();
       next({ path: "/" });
     } else {
       next();
@@ -71,24 +75,7 @@ axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      const popup = document.createElement("div");
-      popup.innerText = "Zostałeś wylogowany, zaloguj się ponownie";
-      popup.style.position = "fixed";
-      popup.style.top = "20px";
-      popup.style.left = "50%";
-      popup.style.transform = "translateX(-50%)";
-      popup.style.backgroundColor = "#28a745";
-      popup.style.color = "white";
-      popup.style.padding = "10px 20px";
-      popup.style.borderRadius = "8px";
-      popup.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
-      popup.style.zIndex = "10000";
-      document.body.appendChild(popup);
-
-      setTimeout(() => {
-        document.body.removeChild(popup);
-        router.push("/");
-      }, 2000);
+      showLogoutPopup();
     }
     return Promise.reject(error);
 });
