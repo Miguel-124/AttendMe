@@ -288,4 +288,28 @@ function goToDashboard() {
   font-weight: bold;
   margin-bottom: 10px;
 }
+
+.form-container {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  margin-top: 20px;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.registration-container {
+  max-width: 500px;
+  padding: 20px;
+  border-radius: 20px;
+  margin: 50px auto;
+  text-align: center;
+  background-color: white;
+}
 </style>

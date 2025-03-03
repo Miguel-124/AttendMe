@@ -54,7 +54,6 @@ const fetchQRCode = async () => {
   }
 };
 
-
 onMounted(() => {
   fetchQRCode();
   refreshInterval = setInterval(fetchQRCode, 2000);
@@ -63,7 +62,6 @@ onMounted(() => {
 onUnmounted(() => {
   clearInterval(refreshInterval);
 });
-
 
 function getToken() {
   const stored = sessionStorage.getItem("registeredDeviceToken");
@@ -75,7 +73,6 @@ function getToken() {
   // Zakładamy, że format to "userId: token"
   return parts.length > 1 ? parts[1] : "";
 }
-
 </script>
 
 <style scoped>
@@ -88,5 +85,11 @@ function getToken() {
   text-align: center;
   background-color: white;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.info {
+  font-size: 14px;
+  color: #555;
+  margin-top: 10px;
 }
 </style>

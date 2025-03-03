@@ -89,7 +89,7 @@ async function login() {
 </script>
 
 <style scoped>
-.button-login{
+.button-login {
   width: 100%;
   background: #2563eb;
   color: white;
@@ -100,5 +100,11 @@ async function login() {
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s;
+}
+
+.footer {
+  margin-top: 20px;
+  font-size: 12px;
+  color: #777;
 }
 </style>
