@@ -22,7 +22,7 @@
           class="input"
         />
 
-        <button type="submit" class="button">Zaloguj</button>
+        <button type="submit" class="button-login">Zaloguj</button>
 
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </form>
@@ -89,66 +89,7 @@ async function login() {
 </script>
 
 <style scoped>
-.login-container {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
-  justify-content: center;
-  align-items: center;
-  background-color: #000000;
-}
-
-.login-box {
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 500px;
-}
-
-.logo {
-  width: 200px;
-  margin-bottom: 20px;
-  border-radius: 20%;
-}
-
-.title {
-  font-size: 22px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-.form {
-  text-align: left;
-}
-
-.label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 6px;
-}
-
-.input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 16px;
-  margin-bottom: 15px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.input:focus {
-  border-color: #2563eb;
-}
-
-.button {
+.button-login{
   width: 100%;
   background: #2563eb;
   color: white;
@@ -160,108 +101,4 @@ async function login() {
   cursor: pointer;
   transition: background 0.2s;
 }
-
-.button:hover {
-  background: #1e40af;
-}
-
-.error {
-  color: red;
-  font-size: 14px;
-  margin-top: 10px;
-}
-
-.footer {
-  margin-top: 20px;
-  font-size: 12px;
-  color: #777;
-}
-
-/* .login-container {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
-  justify-content: center;
-  align-items: center;
-  background-color: #000000;
-}
-
-.login-box {
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 500px;
-}
-
-.logo {
-  width: 200px;
-  margin-bottom: 20px;
-  border-radius: 20%;
-}
-
-.title {
-  font-size: 22px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-.form {
-  text-align: left;
-}
-
-.label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 6px;
-}
-
-.input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 16px;
-  margin-bottom: 15px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.input:focus {
-  border-color: #2563eb;
-}
-
-.button {
-  width: 100%;
-  background: #2563eb;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  padding: 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.button:hover {
-  background: #1e40af;
-}
-
-.error {
-  color: red;
-  font-size: 14px;
-  margin-top: 10px;
-}
-
-.footer {
-  margin-top: 20px;
-  font-size: 12px;
-  color: #777;
-} */
 </style>

@@ -146,65 +146,6 @@ function getToken() {
 </script>
 
 <style scoped>
-.page-container {
-  background-color: #1c1c1c;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
-
-.scanner-container {
-  background-color: #fff;
-  width: 90%;
-  border-radius: 20px;
-  padding: 20px;
-  text-align: center;
-}
-
-.logo {
-  width: 100px;
-  height: auto;
-  border-radius: 20px;
-  margin-bottom: 10px;
-}
-
-.title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #000;
-  margin-bottom: 10px;
-}
-
-.camera-feed {
-  width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  margin-top: 10px;
-}
-
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background-color: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  max-width: 80%;
-  text-align: center;
-}
-
 .modal-title {
   margin-bottom: 10px;
   font-size: 20px;
@@ -218,21 +159,27 @@ function getToken() {
   color: #333;
 }
 
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.3s;
-}
-.modal-fade-enter,
-.modal-fade-leave-to {
-  opacity: 0;
+.camera-feed {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-top: 10px;
 }
 
-.modal-scale-enter-active,
-.modal-scale-leave-active {
-  transition: transform 0.3s;
+.scanner-container {
+  background-color: #fff;
+  width: 90%;
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
 }
-.modal-scale-enter,
-.modal-scale-leave-to {
-  transform: scale(0.9);
+
+.page-container {
+  background-color: #1c1c1c;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 </style>

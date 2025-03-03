@@ -9,8 +9,8 @@
 
     <!-- Sekcja, gdy urządzenie jest już zarejestrowane -->
     <div v-if="deviceAlreadyRegistered" class="success-container">
-      <h1 class="title">Urządzenie zarejestrowane</h1>
-      <p class="subtitle">
+      <h1 class="title register">Urządzenie zarejestrowane</h1>
+      <p class="subtitle register">
         Urządzenie jest już zarejestrowane dla Ciebie. Możesz teraz skanować
         obecność lub otworzyć pulpit.
       </p>
@@ -214,90 +214,6 @@ function goToDashboard() {
 </script>
 
 <style scoped>
-.registration-container {
-  max-width: 500px;
-  padding: 20px;
-  border-radius: 20px;
-  margin: 50px auto;
-  text-align: center;
-  background-color: white;
-}
-
-.logo {
-  width: 120px;
-  border-radius: 20px;
-}
-
-.title {
-  font-size: 28px;
-  font-weight: bold;
-  color: #000;
-}
-
-.subtitle {
-  font-size: 16px;
-  color: #555;
-  margin-bottom: 20px;
-}
-
-.form-container {
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  text-align: left;
-  margin-top: 20px;
-}
-
-label {
-  font-weight: bold;
-  display: block;
-  margin: 10px 0 5px;
-  color: #333;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-  box-sizing: border-box;
-}
-
-.submit-button {
-  width: 100%;
-  background-color: #007b45;
-  color: white;
-  font-size: 16px;
-  padding: 12px;
-  border: none;
-  border-radius: 5px;
-  margin-top: 20px;
-  cursor: pointer;
-  font-weight: bold;
-}
-.submit-button:hover {
-  background-color: #005c34;
-}
-
-.success-container {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.error {
-  color: red;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.success {
-  color: green;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
 .scan-button,
 .dashboard-button,
 .reset-button {
@@ -331,23 +247,9 @@ input {
   background-color: #d9534f;
   color: white;
 }
+
 .reset-button:hover {
   background-color: #c9302c;
-}
-
-.reset-message {
-  margin-top: 10px;
-  font-weight: bold;
-  color: #28a745;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s;
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
 }
 
 .reset-popup {
@@ -362,5 +264,28 @@ input {
   z-index: 9999;
   font-weight: bold;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.submit-button {
+  width: 100%;
+  background-color: #007b45;
+  color: white;
+  font-size: 16px;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  margin-top: 20px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.submit-button:hover {
+  background-color: #005c34;
+}
+
+.success {
+  color: green;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 </style>

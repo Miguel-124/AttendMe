@@ -3,13 +3,13 @@
     <router-link to="/">
       <img src="@/assets/logo.png" alt="AttendMe logo" class="logo" />
     </router-link>
-    <h1 class="title">Kod QR do rejestracji obecności</h1>
+    <h1 class="title register">Kod QR do rejestracji obecności</h1>
 
     <div v-if="loading" class="loading">Ładowanie kodu QR...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
 
-    <div v-if="!loading && !error" class="qr-code">
-      <img :src="qrCodeUrl" alt="Kod QR" />
+    <div v-if="!loading && !error">
+      <img class="qrcode" :src="qrCodeUrl" alt="Kod QR" />
     </div>
 
     <p class="info">
@@ -81,6 +81,7 @@ function getToken() {
 <style scoped>
 .qr-container {
   width: 50%;
+  height: 50%;
   border-radius: 20px;
   padding: 20px;
   margin: 50px auto;
@@ -88,41 +89,4 @@ function getToken() {
   background-color: white;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
-
-.logo {
-  width: 120px;
-  border-radius: 20px;
-}
-
-.title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #000;
-  margin-bottom: 20px;
-}
-
-.qr-code img {
-  width: 70%;
-  margin-top: 20px;
-}
-
-.info {
-  font-size: 14px;
-  color: #555;
-  margin-top: 10px;
-}
-
-.loading {
-  font-size: 18px;
-  font-weight: bold;
-  color: blue;
-}
-
-.error {
-  font-size: 18px;
-  font-weight: bold;
-  color: red;
-}
-
-
 </style>

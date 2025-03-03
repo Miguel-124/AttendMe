@@ -8,6 +8,7 @@ import StudentRegisterDevice from "../views/StudentRegisterDevice.vue";
 import StudentSessionDetails from "../views/StudentSessionDetails.vue";
 import StudentGenerateQRCode from "../views/StudentGenerateQRCode.vue";
 import Dashboard from "../views/Dashboard.vue";
+import axios from "axios";
 
 const routes = [
   { path: "/", component: LoginView },
@@ -83,5 +84,32 @@ router.beforeEach((to, from, next) => {
     next();
   }
 });
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      const popup = document.createElement("div");
+      popup.innerText = "Zostałeś wylogowany, zaloguj się ponownie";
+      popup.style.position = "fixed";
+      popup.style.top = "20px";
+      popup.style.left = "50%";
+      popup.style.transform = "translateX(-50%)";
+      popup.style.backgroundColor = "#28a745";
+      popup.style.color = "white";
+      popup.style.padding = "10px 20px";
+      popup.style.borderRadius = "8px";
+      popup.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+      popup.style.zIndex = "10000";
+      document.body.appendChild(popup);
+
+      setTimeout(() => {
+        document.body.removeChild(popup);
+        router.push("/");
+      }, 2000);
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default router;

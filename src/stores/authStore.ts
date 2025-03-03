@@ -16,7 +16,6 @@ export const useAuthStore = defineStore('auth', {
     setToken(newToken: string) {
       this.token = newToken;
       this.isLoggedIn = !!newToken;
-      // Opcjonalnie: zapisz token do sessionStorage lub localStorage
       sessionStorage.setItem('authData', JSON.stringify({ token: newToken }));
     },
     setUser(userData: { id: string; name: string; surname: string; role: string }) {
