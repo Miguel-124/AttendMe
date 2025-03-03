@@ -5,8 +5,11 @@
         <a href="#" class="logo">
           <img src="@/assets/logo.png" alt="AttendMe logo" />
         </a>
-        <button v-if="userRole === 'Uczeń' && hasDeviceToken"
-          class="scan-button-dashboard" @click="goToScan">
+        <button
+          v-if="userRole === 'Uczeń' && hasDeviceToken"
+          class="scan-button-dashboard"
+          @click="goToScan"
+        >
           Skanuj obecność
         </button>
         <!-- Hamburger Menu -->
@@ -89,13 +92,27 @@ defineOptions({
   name: "DashboardView",
 });
 import { ref, onMounted, watch, computed } from "vue";
-import { useAuth } from '@/composables/useAuth';
-import { fetchUserData, userName, userRole } from '@/composables/useUser';
-import { fetchSessions, sessions } from '@/composables/useSessions';
-import { fetchAttendanceList, attendanceList, toggleAttendance } from '@/composables/useAttendance';
-import { getUserDeviceName, resetDevice, deviceName, deviceTokenLoading, resetMessage } from '@/composables/useDevice';
-import { formatDate, formatTimeRange, formatSessionDate } from '@/composables/useFormatters';
-import { useRouter } from 'vue-router';
+import { useAuth } from "@/composables/useAuth";
+import { fetchUserData, userName, userRole } from "@/composables/useUser";
+import { fetchSessions, sessions } from "@/composables/useSessions";
+import {
+  fetchAttendanceList,
+  attendanceList,
+  toggleAttendance,
+} from "@/composables/useAttendance";
+import {
+  getUserDeviceName,
+  resetDevice,
+  deviceName,
+  deviceTokenLoading,
+  resetMessage,
+} from "@/composables/useDevice";
+import {
+  formatDate,
+  formatTimeRange,
+  formatSessionDate,
+} from "@/composables/useFormatters";
+import { useRouter } from "vue-router";
 import axios from "axios";
 import dayjs from "dayjs";
 //import "dayjs/locale/pl";
@@ -121,7 +138,6 @@ const searchText = ref("");
 const userName = ref("Ładowanie...");
 const userRole = ref("");
 const hasDeviceToken = ref(false);
-
 
 async function fetchUserData() {
   const storedData = sessionStorage.getItem("authData");
@@ -268,5 +284,111 @@ function goToScan() {
 </script>
 
 <style scoped>
+.no-sessions-alert {
+  margin: 20px auto;
+  max-width: 500px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  color: #412e00;
+  padding: 15px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.btn-details {
+  background: #14ad00;
+  color: white;
+  font-size: 16px;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 20px;
+}
 
+.btn-details:hover {
+  background: #0056b3;
+}
+
+.session-content {
+  flex: 1;
+  margin-left: 20px;
+}
+
+.session-content h4 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 6px;
+}
+
+.session-content p {
+  margin: 2px 0;
+  font-size: 14px;
+  color: #555;
+  font-weight: bold;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px 20px;
+  margin: 15px 0;
+  color: #000;
+  transition: transform 0.2s ease;
+}
+
+.session-item:hover {
+  transform: scale(1.01);
+}
+
+.session-time {
+  min-width: 200px;
+  text-align: center;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-right: 20px;
+  border-right: 2px solid #eee;
+  padding-right: 20px;
+  font-weight: bold;
+}
+
+.session-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+.form-select,
+.form-control {
+  width: 50%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #000;
+  font-weight: bold;
+  color: #000;
+}
+
+.filters-container {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+}
 </style>
