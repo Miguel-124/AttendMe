@@ -6,6 +6,11 @@
           <img src="@/assets/logo.png" alt="AttendMe logo" />
         </a>
 
+        <button v-if="userRole === 'Uczeń' && hasDeviceToken"
+          class="scan-button-dashboard" @click="goToScan">
+          Skanuj obecność
+        </button>
+
         <!-- Hamburger Menu -->
         <div class="navbar-right">
           <div class="dropdown">
@@ -122,6 +127,8 @@ const totalSessions = ref<number>(8);
 const showMenu = ref<boolean>(false);
 const userName = ref<string>("Ładowanie...");
 const userRole = ref<string>("");
+const hasDeviceToken = ref(false);
+
 
 async function fetchSessionDetails() {
   const storedData = sessionStorage.getItem("authData");
@@ -259,7 +266,13 @@ const attendancePercentage = computed(() => {
 onMounted(() => {
   fetchSessionDetails();
   fetchUserData();
+  hasDeviceToken.value = !!sessionStorage.getItem("registeredDeviceToken");
 });
+
+function goToScan() {
+  const baseUrl = window.location.origin;
+  window.location.href = `${baseUrl}/student/generate-qr`;
+}
 </script>
 
 <style scoped>

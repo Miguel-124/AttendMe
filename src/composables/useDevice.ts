@@ -50,3 +50,5 @@ export async function resetDevice(selectedAttender: { attenderUserId: number; de
     resetMessage.value = "Wystąpił błąd przy resetowaniu urządzenia.";
   }
 }
+
+

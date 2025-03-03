@@ -25,7 +25,7 @@ const routes = [
   {
     path: "/teacher/scanner/:token",
     component: TeacherScanner,
-    meta: { requiresAuth: true },
+    //meta: { requiresAuth: true },
   },
   // {
   //   path: "/student",

@@ -430,5 +430,26 @@ button {
   color: black;
 }
 
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.scan-button-dashboard {
+  width: 40%;
+  max-width: 200px;
+  font-size: 16px;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  margin-top: 10px;
+  margin-left: auto !important;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: #3b5dd6;
+  color: white;
+}
+
 
 
