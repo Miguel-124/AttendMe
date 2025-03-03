@@ -92,26 +92,7 @@ defineOptions({
   name: "DashboardView",
 });
 import { ref, onMounted, watch, computed } from "vue";
-import { useAuth } from "@/composables/useAuth";
-import { fetchUserData, userName, userRole } from "@/composables/useUser";
-import { fetchSessions, sessions } from "@/composables/useSessions";
-import {
-  fetchAttendanceList,
-  attendanceList,
-  toggleAttendance,
-} from "@/composables/useAttendance";
-import {
-  getUserDeviceName,
-  resetDevice,
-  deviceName,
-  deviceTokenLoading,
-  resetMessage,
-} from "@/composables/useDevice";
-import {
-  formatDate,
-  formatTimeRange,
-  formatSessionDate,
-} from "@/composables/useFormatters";
+
 import { useRouter } from "vue-router";
 import axios from "axios";
 import dayjs from "dayjs";
