@@ -22,6 +22,7 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 
+
 const qrCodeUrl = ref("");
 const loading = ref(true);
 const error = ref("");
@@ -70,7 +71,6 @@ function getToken() {
     return "";
   }
   const parts = stored.split(": ");
-  // Zakładamy, że format to "userId: token"
   return parts.length > 1 ? parts[1] : "";
 }
 </script>

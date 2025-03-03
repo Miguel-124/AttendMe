@@ -97,6 +97,7 @@ import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/pl";
+import { setError } from "@/composables/useError";
 
 dayjs.locale("pl");
 
@@ -133,7 +134,7 @@ const hasDeviceToken = ref(false);
 async function fetchSessionDetails() {
   const storedData = sessionStorage.getItem("authData");
   if (!storedData) {
-    error.value = "Brak danych autoryzacyjnych.";
+    setError("Brak danych autoryzacyjnych.");
     loading.value = false;
     return;
   }
@@ -170,9 +171,9 @@ async function fetchSessionDetails() {
     );
   } catch (err: unknown) {
     if (err instanceof Error) {
-      error.value = `Błąd: ${err.message}`;
+      setError(`Błąd: ${err.message}`);
     } else {
-      error.value = "Nieznany błąd pobierania danych.";
+      setError("Nieznany błąd pobierania danych.");
     }
   } finally {
     loading.value = false;
@@ -198,7 +199,7 @@ async function fetchAttendance(
       (a) => a.courseSessionId === courseSessionId
     );
   } catch {
-    error.value = "Błąd pobierania frekwencji.";
+    setError("Błąd pobierania frekwencji.");
   }
 }
 
