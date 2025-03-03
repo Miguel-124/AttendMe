@@ -81,7 +81,9 @@ function getToken() {
 <style scoped>
 .qr-container {
   width: 50%;
+  max-width: fit-content;
   height: 50%;
+  max-height: fit-content;
   border-radius: 20px;
   padding: 20px;
   margin: 50px auto;

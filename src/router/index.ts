@@ -1,53 +1,35 @@
 import { createRouter, createWebHistory } from "vue-router";
-import LoginView from "../views/LoginView.vue";
-//import TeacherDashboard from "../views/TeacherDashboard.vue";
-import TeacherSessionDetails from "../views/TeacherSessionDetails.vue";
-import TeacherScanner from "../views/TeacherScanner.vue";
-//import StudentDashboard from "../views/StudentDashboard.vue";
-import StudentRegisterDevice from "../views/StudentRegisterDevice.vue";
-import StudentSessionDetails from "../views/StudentSessionDetails.vue";
-import StudentGenerateQRCode from "../views/StudentGenerateQRCode.vue";
-import Dashboard from "../views/Dashboard.vue";
 import axios from "axios";
 
 const routes = [
-  { path: "/", component: LoginView },
-  // {
-  //   path: "/teacher",
-  //   component: TeacherDashboard,
-  //   meta: { requiresAuth: true },
-  // },
-  {
-    path: "/teacher/session/:id",
-    component: TeacherSessionDetails,
+  { path: "/", component: () => import("../views/LoginView.vue") },
+  { 
+    path: "/teacher/session/:id", 
+    component: () => import("../views/TeacherSessionDetails.vue"),
     meta: { requiresAuth: true },
   },
-  {
-    path: "/teacher/scanner/:token",
-    component: TeacherScanner,
-    //meta: { requiresAuth: true },
+  { 
+    path: "/teacher/scanner/:token", 
+    component: () => import("../views/TeacherScanner.vue"),
   },
-  // {
-  //   path: "/student",
-  //   component: StudentDashboard,
-  //   meta: { requiresAuth: true },
-  // },
-  {
-    path: "/student/register-device/:token",
-    component: StudentRegisterDevice,
-    //meta: { requiresAuth: true },
+  { 
+    path: "/student/register-device/:token", 
+    component: () => import("../views/StudentRegisterDevice.vue"),
   },
-  {
-    path: "/session/:id",
-    component: StudentSessionDetails,
+  { 
+    path: "/session/:id", 
+    component: () => import("../views/StudentSessionDetails.vue"),
     meta: { requiresAuth: true },
   },
-  {
-    path: "/student/generate-qr",
-    component: StudentGenerateQRCode,
-    //meta: { requiresAuth: true },
+  { 
+    path: "/student/generate-qr", 
+    component: () => import("../views/StudentGenerateQRCode.vue"),
   },
-  { path: "/dashboard", component: Dashboard, meta: { requiresAuth: true } },
+  { 
+    path: "/dashboard", 
+    component: () => import("../views/Dashboard.vue"),
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = createRouter({
@@ -109,7 +91,6 @@ axios.interceptors.response.use(
       }, 2000);
     }
     return Promise.reject(error);
-  }
-);
+});
 
 export default router;
