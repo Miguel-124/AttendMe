@@ -712,7 +712,7 @@ i {
 }
 
 .attendance-table th {
-  padding: 12px;
+  /* padding: 12px; */
   text-align: center;
   font-weight: bold;
 }
@@ -723,7 +723,7 @@ i {
 }
 
 .attendance-table td {
-  padding: 12px;
+  padding: 1vh;
   text-align: center;
   font-size: 15px;
   color: #333;
