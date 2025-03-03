@@ -21,7 +21,6 @@ a,
   }
 }
 
-/* ===== NAVBAR ===== */
 .navbar {
   background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -97,7 +96,6 @@ img {
   background: #e0e0e0;
 }
 
-/* ===== BADGE ===== */
 .badge {
   display: inline-block;
   padding: 5px 10px;
@@ -108,19 +106,6 @@ img {
   font-weight: bold;
 }
 
-/* ===== FILTRY I NAGŁÓWKI ===== */
-.filters-container {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 8px;
-  margin: 20px;
-}
-
-.filters {
-  display: flex;
-  gap: 10px;
-}
-
 h5 {
   font-size: 18px;
   font-weight: bold;
@@ -128,151 +113,6 @@ h5 {
   text-transform: uppercase;
   color: #000;
   margin-bottom: 10px;
-}
-
-/* ===== ELEMENTY FORMULARZY ===== */
-.form-select,
-.form-control {
-  width: 50%;
-  padding: 8px;
-  border-radius: 5px;
-  border: 1px solid #000;
-  font-weight: bold;
-  color: #000;
-}
-
-/* ===== LISTA SESJI ===== */
-.session-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 auto;
-  max-width: 800px;
-}
-
-.session-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 15px 20px;
-  margin: 15px 0;
-  color: #000;
-  transition: transform 0.2s ease;
-}
-
-.session-item:hover {
-  transform: scale(1.01);
-}
-
-.session-time {
-  min-width: 200px;
-  text-align: center;
-  color: #555;
-  font-size: 14px;
-  line-height: 1.4;
-  margin-right: 20px;
-  border-right: 2px solid #eee;
-  padding-right: 20px;
-  font-weight: bold;
-}
-
-.session-content {
-  flex: 1;
-  margin-left: 20px;
-}
-
-.session-content h4 {
-  font-size: 20px;
-  font-weight: bold;
-  color: #007bff;
-  margin-bottom: 6px;
-}
-
-.session-content p {
-  margin: 2px 0;
-  font-size: 14px;
-  color: #555;
-  font-weight: bold;
-}
-
-.btn-details {
-  background: #14ad00;
-  color: white;
-  font-size: 16px;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  margin-left: 20px;
-}
-
-.btn-details:hover {
-  background: #0056b3;
-}
-
-.no-sessions-alert {
-  margin: 20px auto;
-  max-width: 500px;
-  background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-  color: #412e00;
-  padding: 15px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-.login-container {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
-  justify-content: center;
-  align-items: center;
-  background-color: #000000;
-}
-
-.login-box {
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 500px;
-}
-
-.form {
-  text-align: left;
-}
-
-.label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 6px;
-}
-
-.input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 16px;
-  margin-bottom: 15px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.input:focus {
-  border-color: #2563eb;
 }
 
 .button:hover {
