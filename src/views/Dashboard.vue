@@ -63,8 +63,8 @@ defineOptions({
 });
 import { ref, onMounted, watch, computed } from "vue";
 import { fetchUserData, userRole } from "@/composables/useUser";
-import { fetchSessions, sessions } from "@/composables/useSessions";
-import { formatSessionDate } from "@/composables/useFormatters";
+//import { fetchSessions, sessions } from "@/composables/useSessions"; //TODO: implement this function
+//import { formatSessionDate } from "@/composables/useFormatters"; //TODO: implement this function
 import { useRouter } from "vue-router";
 import axios from "axios";
 import dayjs from "dayjs";
