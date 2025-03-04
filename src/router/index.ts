@@ -6,12 +6,16 @@ const routes = [
   {
     path: "/",
     component: () => import("../layouts/DefaultLayout.vue"),
-    meta: { requiresAuth: true },
     children: [
-      { path: "dashboard", component: () => import("../views/Dashboard.vue") },
+      {
+        path: "dashboard",
+        component: () => import("../views/Dashboard.vue"),
+        meta: { requiresAuth: true },
+      },
       {
         path: "teacher/session/:id",
         component: () => import("../views/TeacherSessionDetails.vue"),
+        meta: { requiresAuth: true },
       },
       {
         path: "teacher/scanner/:token",
@@ -24,6 +28,7 @@ const routes = [
       {
         path: "session/:id",
         component: () => import("../views/StudentSessionDetails.vue"),
+        meta: { requiresAuth: true },
       },
       {
         path: "student/generate-qr",
