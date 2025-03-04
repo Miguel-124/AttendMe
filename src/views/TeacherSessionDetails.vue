@@ -415,16 +415,6 @@ function getDeviceButtonText(attender: Attendance) {
   }
 }
 
-// function getToken() {
-//   const storedData = sessionStorage.getItem("authData");
-//   if (!storedData) {
-//     console.error("Brak danych autoryzacyjnych w sessionStorage");
-//     return "";
-//   }
-//   const authData = JSON.parse(storedData);
-//   return authData.token;
-// }
-
 function formatDate(date: string): string {
   return dayjs(date).format("DD.MM.YYYY");
 }
@@ -440,8 +430,6 @@ onMounted(async () => {
   await fetchAttendanceList();
   await fetchSessions();
   await fetchDevicesForAttendance();
-  //refreshInterval = window.setInterval(fetchAttendanceList, 2000);
-  //refreshInterval = window.setInterval(fetchSessions, 2000);
 });
 
 onUnmounted(() => {
