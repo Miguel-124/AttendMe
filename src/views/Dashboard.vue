@@ -62,7 +62,7 @@ defineOptions({
   name: "DashboardView",
 });
 import { ref, onMounted, watch, computed } from "vue";
-import { fetchUserData, userName, userRole } from "@/composables/useUser";
+import { fetchUserData, userRole } from "@/composables/useUser";
 import { fetchSessions, sessions } from "@/composables/useSessions";
 import { formatSessionDate } from "@/composables/useFormatters";
 import { useRouter } from "vue-router";
@@ -87,38 +87,7 @@ const sessions = ref<Session[]>([]);
 const dateFilter = ref("all");
 const searchText = ref("");
 
-const userName = ref("Ładowanie...");
-const userRole = ref("");
 const hasDeviceToken = ref(false);
-
-async function fetchUserData() {
-  const storedData = sessionStorage.getItem("authData");
-  if (!storedData) {
-    console.error("Brak danych autoryzacyjnych w sessionStorage");
-    return;
-  }
-  const authData = JSON.parse(storedData);
-  try {
-    const response = await axios.get(
-      "https://attendme-backend.runasp.net/user/get",
-      {
-        headers: { Authorization: `Bearer ${authData.token}` },
-      }
-    );
-    const userData = response.data;
-    userName.value = `${userData.name} ${userData.surname}`;
-    if (userData.isTeacher) {
-      userRole.value = "Nauczyciel";
-    } else if (userData.isStudent) {
-      userRole.value = "Uczeń";
-    } else {
-      userRole.value = "Nieznana rola";
-    }
-  } catch (error) {
-    console.error("Błąd pobierania danych użytkownika:", error);
-    userName.value = "Błąd ładowania";
-  }
-}
 
 async function fetchSessions() {
   const storedData = sessionStorage.getItem("authData");
