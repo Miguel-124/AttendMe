@@ -1,30 +1,6 @@
 <!-- eslint-disable vue/require-toggle-inside-transition -->
 <template>
   <div class="teacher-dashboard">
-    <header class="navbar">
-      <div class="navbar-container">
-        <a href="#" class="logo">
-          <img src="@/assets/logo.png" alt="AttendMe logo" />
-        </a>
-
-        <!-- Hamburger Menu  -->
-        <div class="navbar-right">
-          <div class="dropdown">
-            <button class="menu-button" @click="toggleMenu">☰</button>
-            <ul v-if="showMenu" class="dropdown-menu">
-              <li class="dropdown-header">Zalogowany</li>
-              <li class="dropdown-item">
-                <b>{{ userName }}</b>
-                <span class="badge">{{ userRole }}</span>
-              </li>
-              <li><hr class="dropdown-divider" /></li>
-              <li><a class="dropdown-item" @click="logout">Wyloguj</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </header>
-
     <!-- KARTA ZAJĘĆ -->
     <div class="lesson-card" v-if="session">
       <h2 class="lesson-title">{{ session.courseName }}</h2>
@@ -162,7 +138,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore } from "@/stores/authStore";
 import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 import { useRoute } from "vue-router";
@@ -173,7 +149,6 @@ dayjs.locale("pl");
 const route = useRoute();
 const sessionId = ref(Number(route.params.id));
 const session = ref<Session | null>(null);
-const showMenu = ref(false);
 
 const userName = ref("");
 const userRole = ref("");
@@ -190,8 +165,6 @@ const showQrModal = ref(false);
 const qrCodeUrl = ref("");
 const authStore = useAuthStore();
 const authToken = authStore.token;
-
-
 
 interface Attendance {
   attendanceLogId: number | null;
@@ -486,16 +459,6 @@ function formatTimeRange(start: string, end: string): string {
   return `${startDate.format("HH:mm")} - ${endDate.format("HH:mm")}`;
 }
 
-function toggleMenu() {
-  showMenu.value = !showMenu.value;
-}
-
-function logout() {
-  sessionStorage.removeItem("token");
-  localStorage.removeItem("token");
-  window.location.href = "/";
-}
-
 onMounted(async () => {
   await fetchUserData();
   await fetchAttendanceList();
@@ -524,7 +487,6 @@ function copyQrCodeUrl() {
 </script>
 
 <style scoped>
-
 .modal-open {
   overflow-y: hidden !important;
 }

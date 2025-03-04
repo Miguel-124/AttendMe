@@ -1,10 +1,15 @@
-import { defineStore } from 'pinia';
-import axios from 'axios';
+import { defineStore } from "pinia";
+import axios from "axios";
 
-export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore("auth", {
   state: () => ({
-    token: '' as string,
-    user: null as { id: number; name: string; surname: string; role: string } | null,
+    token: "" as string,
+    user: null as {
+      id: number;
+      name: string;
+      surname: string;
+      role: string;
+    } | null,
   }),
 
   getters: {
@@ -14,17 +19,22 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     setToken(newToken: string) {
       this.token = newToken;
-      sessionStorage.setItem('authData', JSON.stringify({ token: newToken }));
+      sessionStorage.setItem("authData", JSON.stringify({ token: newToken }));
     },
 
-    setUser(userData: { id: number; name: string; surname: string; role: string }) {
+    setUser(userData: {
+      id: number;
+      name: string;
+      surname: string;
+      role: string;
+    }) {
       this.user = userData;
     },
-    
+
     clearAuth() {
-      this.token = '';
+      this.token = "";
       this.user = null;
-      sessionStorage.removeItem('authData');
+      sessionStorage.removeItem("authData");
     },
 
     async login(email: string, password: string) {
@@ -38,7 +48,10 @@ export const useAuthStore = defineStore('auth', {
         }
 
         this.token = response.data.token;
-        sessionStorage.setItem("authData", JSON.stringify({ token: this.token }));
+        sessionStorage.setItem(
+          "authData",
+          JSON.stringify({ token: this.token })
+        );
 
         const userResponse = await axios.get(
           "https://attendme-backend.runasp.net/user/get",
@@ -49,7 +62,6 @@ export const useAuthStore = defineStore('auth', {
           }
         );
 
-        // Ustawienie danych użytkownika w stanie
         this.user = {
           id: userResponse.data.id,
           name: userResponse.data.name,

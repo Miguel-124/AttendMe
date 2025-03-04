@@ -3,32 +3,33 @@ import axios from "axios";
 
 const routes = [
   { path: "/", component: () => import("../views/LoginView.vue") },
-  { 
-    path: "/teacher/session/:id", 
-    component: () => import("../views/TeacherSessionDetails.vue"),
+  {
+    path: "/",
+    component: () => import("../layouts/DefaultLayout.vue"),
     meta: { requiresAuth: true },
-  },
-  { 
-    path: "/teacher/scanner/:token", 
-    component: () => import("../views/TeacherScanner.vue"),
-  },
-  { 
-    path: "/student/register-device/:token", 
-    component: () => import("../views/StudentRegisterDevice.vue"),
-  },
-  { 
-    path: "/session/:id", 
-    component: () => import("../views/StudentSessionDetails.vue"),
-    meta: { requiresAuth: true },
-  },
-  { 
-    path: "/student/generate-qr", 
-    component: () => import("../views/StudentGenerateQRCode.vue"),
-  },
-  { 
-    path: "/dashboard", 
-    component: () => import("../views/Dashboard.vue"),
-    meta: { requiresAuth: true },
+    children: [
+      { path: "dashboard", component: () => import("../views/Dashboard.vue") },
+      {
+        path: "teacher/session/:id",
+        component: () => import("../views/TeacherSessionDetails.vue"),
+      },
+      {
+        path: "teacher/scanner/:token",
+        component: () => import("../views/TeacherScanner.vue"),
+      },
+      {
+        path: "student/register-device/:token",
+        component: () => import("../views/StudentRegisterDevice.vue"),
+      },
+      {
+        path: "session/:id",
+        component: () => import("../views/StudentSessionDetails.vue"),
+      },
+      {
+        path: "student/generate-qr",
+        component: () => import("../views/StudentGenerateQRCode.vue"),
+      },
+    ],
   },
 ];
 
@@ -78,6 +79,7 @@ axios.interceptors.response.use(
       showLogoutPopup();
     }
     return Promise.reject(error);
-});
+  }
+);
 
 export default router;

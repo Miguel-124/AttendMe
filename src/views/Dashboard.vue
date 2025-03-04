@@ -1,35 +1,5 @@
 <template>
   <div class="dashboard">
-    <header class="navbar">
-      <div class="navbar-container">
-        <a href="#" class="logo">
-          <img src="@/assets/logo.png" alt="AttendMe logo" />
-        </a>
-        <button
-          v-if="userRole === 'Uczeń' && hasDeviceToken"
-          class="scan-button-dashboard"
-          @click="goToScan"
-        >
-          Skanuj obecność
-        </button>
-        <!-- Hamburger Menu -->
-        <div class="navbar-right">
-          <div class="dropdown">
-            <button class="menu-button" @click="toggleMenu">☰</button>
-            <ul v-if="showMenu" class="dropdown-menu">
-              <li class="dropdown-header">Zalogowany</li>
-              <li class="dropdown-item">
-                <b>{{ userName }}</b>
-                <span class="badge">{{ userRole }}</span>
-              </li>
-              <li><hr class="dropdown-divider" /></li>
-              <li><a class="dropdown-item" @click="logout">Wyloguj</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </header>
-
     <!-- Filtry -->
     <div class="filters-container">
       <h5>Filtry</h5>
@@ -91,8 +61,27 @@
 defineOptions({
   name: "DashboardView",
 });
-import { ref, onMounted, watch, computed } from "vue";
-
+import { ref, onMounted, watch, computed, defineAsyncComponent } from "vue";
+import { useAuth } from "@/composables/useAuth";
+import { fetchUserData, userName, userRole } from "@/composables/useUser";
+import { fetchSessions, sessions } from "@/composables/useSessions";
+import {
+  fetchAttendanceList,
+  attendanceList,
+  toggleAttendance,
+} from "@/composables/useAttendance";
+import {
+  getUserDeviceName,
+  resetDevice,
+  deviceName,
+  deviceTokenLoading,
+  resetMessage,
+} from "@/composables/useDevice";
+import {
+  formatDate,
+  formatTimeRange,
+  formatSessionDate,
+} from "@/composables/useFormatters";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -112,7 +101,6 @@ interface Session {
 
 const router = useRouter();
 const sessions = ref<Session[]>([]);
-const showMenu = ref(false);
 const dateFilter = ref("all");
 const searchText = ref("");
 
@@ -233,12 +221,6 @@ function formatSessionDate(start: string, end: string): string {
   return `${startDate.format("DD.MM.YYYY")} (${startDate.format("dddd")})<br>${startDate.format("HH:mm")} - ${endDate.format("HH:mm")}`;
 }
 
-function logout() {
-  sessionStorage.removeItem("authData");
-  localStorage.removeItem("authData");
-  router.push("/");
-}
-
 function openSession(id: number) {
   if (userRole.value === "Nauczyciel") {
     router.push(`/teacher/session/${id}`);
@@ -247,21 +229,12 @@ function openSession(id: number) {
   }
 }
 
-function toggleMenu() {
-  showMenu.value = !showMenu.value;
-}
-
 watch(dateFilter, fetchSessions);
 onMounted(async () => {
   await fetchUserData();
   await fetchSessions();
   hasDeviceToken.value = !!sessionStorage.getItem("registeredDeviceToken");
 });
-
-function goToScan() {
-  const baseUrl = window.location.origin;
-  window.location.href = `${baseUrl}/student/generate-qr`;
-}
 </script>
 
 <style scoped>
