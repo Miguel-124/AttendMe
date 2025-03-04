@@ -69,6 +69,8 @@ import axios from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/pl";
 import { setError } from "@/composables/useError";
+import { fetchUserData } from "@/composables/useUser";
+
 
 dayjs.locale("pl");
 
@@ -95,8 +97,6 @@ const error = ref<string | null>(null);
 const isPresent = ref<boolean>(false);
 const attendanceCount = ref<number>(0);
 const totalSessions = ref<number>(8);
-const userName = ref<string>("Ładowanie...");
-const userRole = ref<string>("");
 const hasDeviceToken = ref(false);
 
 async function fetchSessionDetails() {
@@ -168,43 +168,6 @@ async function fetchAttendance(
     );
   } catch {
     setError("Błąd pobierania frekwencji.");
-  }
-}
-
-async function fetchUserData() {
-  const storedData = sessionStorage.getItem("authData");
-  if (!storedData) {
-    console.error("Brak danych autoryzacyjnych w sessionStorage");
-    return;
-  }
-  const authData = JSON.parse(storedData);
-
-  try {
-    const response = await axios.get(
-      "https://attendme-backend.runasp.net/user/get",
-      {
-        headers: {
-          Authorization: `Bearer ${authData.token}`,
-        },
-      }
-    );
-
-    const userData = response.data;
-
-    userName.value = `${userData.name} ${userData.surname}`;
-
-    if (userData.isTeacher) {
-      userRole.value = "Nauczyciel";
-    } else if (userData.isStudent) {
-      userRole.value = "Uczeń";
-    } else if (userData.isAdmin) {
-      userRole.value = "Administrator";
-    } else {
-      userRole.value = "Nieznana rola";
-    }
-  } catch (error) {
-    console.error("Błąd pobierania danych użytkownika:", error);
-    userName.value = "Błąd ładowania";
   }
 }
 
