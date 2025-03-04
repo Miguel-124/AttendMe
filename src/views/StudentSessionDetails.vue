@@ -1,34 +1,5 @@
 <template>
   <div class="session-details">
-    <header class="navbar">
-      <div class="navbar-container">
-        <a href="#" class="logo">
-          <img src="@/assets/logo.png" alt="AttendMe logo" />
-        </a>
-
-        <button v-if="userRole === 'Uczeń' && hasDeviceToken"
-          class="scan-button-dashboard" @click="goToScan">
-          Skanuj obecność
-        </button>
-
-        <!-- Hamburger Menu -->
-        <div class="navbar-right">
-          <div class="dropdown">
-            <button class="menu-button" @click="toggleMenu">☰</button>
-            <ul v-if="showMenu" class="dropdown-menu">
-              <li class="dropdown-header">Zalogowany</li>
-              <li class="dropdown-item">
-                <b>{{ userName }}</b>
-                <span class="badge">{{ userRole }}</span>
-              </li>
-              <li><hr class="dropdown-divider" /></li>
-              <li><a class="dropdown-item" @click="logout">Wyloguj</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </header>
-
     <div class="container">
       <div v-if="loading" class="loading">Ładowanie danych...</div>
       <div v-else-if="error" class="error">{{ error }}</div>
@@ -93,7 +64,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import axios from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/pl";
@@ -117,18 +88,15 @@ interface Attendance {
 }
 
 const route = useRoute();
-const router = useRouter();
 const sessionDetails = ref<SessionDetails | null>(null);
 const loading = ref<boolean>(true);
 const error = ref<string | null>(null);
 const isPresent = ref<boolean>(false);
 const attendanceCount = ref<number>(0);
 const totalSessions = ref<number>(8);
-const showMenu = ref<boolean>(false);
 const userName = ref<string>("Ładowanie...");
 const userRole = ref<string>("");
 const hasDeviceToken = ref(false);
-
 
 async function fetchSessionDetails() {
   const storedData = sessionStorage.getItem("authData");
@@ -239,16 +207,6 @@ async function fetchUserData() {
   }
 }
 
-function toggleMenu() {
-  showMenu.value = !showMenu.value;
-}
-
-function logout() {
-  sessionStorage.removeItem("token");
-  localStorage.removeItem("token");
-  router.push("/");
-}
-
 function formatDate(date: string): string {
   return dayjs(date).format("D MMMM YYYY");
 }
@@ -268,11 +226,6 @@ onMounted(() => {
   fetchUserData();
   hasDeviceToken.value = !!sessionStorage.getItem("registeredDeviceToken");
 });
-
-function goToScan() {
-  const baseUrl = window.location.origin;
-  window.location.href = `${baseUrl}/student/generate-qr`;
-}
 </script>
 
 <style scoped>
