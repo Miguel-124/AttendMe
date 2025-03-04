@@ -140,6 +140,7 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/authStore";
 import { ref, onMounted, onUnmounted } from "vue";
+import { fetchUserData } from "@/composables/useUser";
 import axios from "axios";
 import { useRoute } from "vue-router";
 import dayjs from "dayjs";
@@ -150,8 +151,6 @@ const route = useRoute();
 const sessionId = ref(Number(route.params.id));
 const session = ref<Session | null>(null);
 
-const userName = ref("");
-const userRole = ref("");
 const attendanceList = ref<Attendance[]>([]);
 let refreshInterval: number | undefined; // ID timera
 
@@ -259,29 +258,6 @@ async function fetchSessions() {
       ) || null;
   } catch (error) {
     console.error("Błąd pobierania sesji:", error);
-  }
-}
-
-async function fetchUserData() {
-  try {
-    const response = await axios.get(
-      "https://attendme-backend.runasp.net/user/get",
-      {
-        headers: { Authorization: `Bearer ${authToken}` },
-      }
-    );
-    const userData = response.data;
-    userName.value = `${userData.name} ${userData.surname}`;
-    userRole.value = userData.isTeacher
-      ? "Nauczyciel"
-      : userData.isStudent
-        ? "Uczeń"
-        : userData.isAdmin
-          ? "Administrator"
-          : "Nieznana rola";
-  } catch (error) {
-    console.error("Błąd pobierania danych użytkownika:", error);
-    userName.value = "Błąd ładowania";
   }
 }
 
