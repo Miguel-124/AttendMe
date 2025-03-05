@@ -70,6 +70,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/pl";
 import { setError } from "@/composables/useError";
 import { fetchUserData } from "@/composables/useUser";
+import { fetchAttendance, isPresent, attendanceCount } from "@/composables/useAttendance";
 
 
 dayjs.locale("pl");
@@ -83,19 +84,10 @@ interface SessionDetails {
   courseGroupId: number;
 }
 
-interface Attendance {
-  attendanceLogId: number;
-  attenderUserId: number;
-  courseSessionId: number;
-  dateCreated: string;
-}
-
 const route = useRoute();
 const sessionDetails = ref<SessionDetails | null>(null);
 const loading = ref<boolean>(true);
 const error = ref<string | null>(null);
-const isPresent = ref<boolean>(false);
-const attendanceCount = ref<number>(0);
 const totalSessions = ref<number>(8);
 const hasDeviceToken = ref(false);
 
@@ -145,29 +137,6 @@ async function fetchSessionDetails() {
     }
   } finally {
     loading.value = false;
-  }
-}
-
-async function fetchAttendance(
-  courseGroupId: number,
-  courseSessionId: number,
-  token: string
-) {
-  try {
-    const response = await axios.get(
-      `https://attendme-backend.runasp.net/course/student/attendance/get?courseGroupId=${courseGroupId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    const studentAttendances: Attendance[] = response.data;
-    attendanceCount.value = studentAttendances.length;
-    isPresent.value = studentAttendances.some(
-      (a) => a.courseSessionId === courseSessionId
-    );
-  } catch {
-    setError("Błąd pobierania frekwencji.");
   }
 }
 
