@@ -35,6 +35,16 @@ import { defineComponent } from "vue";
 import axios from "axios";
 import jsQR from "jsqr";
 
+interface AttendanceResponse {
+  name: string;
+  surname: string;
+  student: Student;
+}
+
+interface Student {
+  albumIdNumber: string;
+}
+
 export default defineComponent({
   name: "TeacherScanner",
   data() {
@@ -44,7 +54,7 @@ export default defineComponent({
       scanInterval: undefined as number | undefined,
       loading: true,
       showPopUpModal: false,
-      responseData: null as unknown,
+      responseData: null as AttendanceResponse | null,
     };
   },
 
