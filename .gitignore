@@ -13,29 +13,29 @@ dist-ssr
 *.sw?
 .env
 
-node_modules
-dist
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-*.local
-*.env.local
-*.env.development.local
-*.env.test.local
-*.env.production.local
-*.cache
-*.temp
-*.tmp
-*.bak
-*.swp
-*.swo
-*.DS_Store
-*.sublime-project
-*.sublime-workspace
-.idea
-.vscode
-*.code-workspace
+# node_modules
+# dist
+# *.log
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+# *.local
+# *.env.local
+# *.env.development.local
+# *.env.test.local
+# *.env.production.local
+# *.cache
+# *.temp
+# *.tmp
+# *.bak
+# *.swp
+# *.swo
+# *.DS_Store
+# *.sublime-project
+# *.sublime-workspace
+# .idea
+# .vscode
+# *.code-workspace
 *.suo
 *.ntvs*
 *.njsproj
