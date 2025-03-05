@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ref } from 'vue';
-import { getAuthToken } from './useAuth';
+import { useAuth } from "@/composables/useAuth";
 import { setError } from './useError';
 
 export interface Attendance {
@@ -16,20 +16,21 @@ export interface Attendance {
   dateCreated: string;
 }
 
+const { authToken } = useAuth();
+
 export const attendanceList = ref<Attendance[]>([]);
 export const attendanceCount = ref<number>(0);
 export const isPresent = ref<boolean>(false);
 
 export async function fetchAttendance(
     courseGroupId: number,
-    courseSessionId: number,
-    token: string
+    courseSessionId: number
   ) {
     try {
       const response = await axios.get(
         `https://attendme-backend.runasp.net/course/student/attendance/get?courseGroupId=${courseGroupId}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${authToken}` },
         }
       );
   
@@ -43,9 +44,20 @@ export async function fetchAttendance(
     }
   }
 
+export async function fetchAttendanceList(courseSessionId: number) {
+  try {
+    const response = await axios.get<Attendance[]>(
+      `https://attendme-backend.runasp.net/course/session/attendance-list/get?sessionId=${courseSessionId}`,
+      { headers: { Authorization: `Bearer ${authToken}` } }
+    );
+    attendanceList.value = response.data;
+  } catch (error) {
+    console.error("Błąd pobierania listy obecności:", error);
+  }
+}
+
 export async function toggleAttendance(attender: Attendance) {
-  const token = getAuthToken();
-  if (!token) return;
+  if (!authToken) return;
   const newStatus = !attender.wasUserPresent;
   try {
     await axios.get(
@@ -56,7 +68,7 @@ export async function toggleAttendance(attender: Attendance) {
           courseSessionId: attender.courseSessionId,
           addOrRemove: newStatus,
         },
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       }
     );
     attender.wasUserPresent = newStatus;

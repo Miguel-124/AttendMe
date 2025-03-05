@@ -141,8 +141,8 @@
 import { useAuthStore } from "@/stores/authStore";
 import { ref, onMounted, onUnmounted } from "vue";
 import { fetchUserData } from "@/composables/useUser";
-import axios from "axios";
 import { useRoute } from "vue-router";
+import axios from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/pl";
 dayjs.locale("pl");
