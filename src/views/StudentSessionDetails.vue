@@ -70,7 +70,6 @@ import dayjs from "dayjs";
 import "dayjs/locale/pl";
 import { setError } from "@/composables/useError";
 import { fetchUserData } from "@/composables/useUser";
-import { useAuth } from "@/composables/useAuth";
 import { fetchAttendance, isPresent, attendanceCount } from "@/composables/useAttendance";
 
 
@@ -91,11 +90,17 @@ const loading = ref<boolean>(true);
 const error = ref<string | null>(null);
 const totalSessions = ref<number>(8);
 const hasDeviceToken = ref(false);
-const { authToken } = useAuth();
-
 
 async function fetchSessionDetails() {
+  const storedData = sessionStorage.getItem("authData");
+  if (!storedData) {
+    setError("Brak danych autoryzacyjnych.");
+    loading.value = false;
+    return;
+  }
+  const authData = JSON.parse(storedData);
   const courseSessionId = Number(route.params.id);
+
   try {
     const response = await axios.post(
       "https://attendme-backend.runasp.net/course/student/sessions/get",
@@ -105,7 +110,7 @@ async function fetchSessionDetails() {
       },
       {
         headers: {
-          Authorization: `Bearer ${authToken}`,
+          Authorization: `Bearer ${authData.token}`,
         },
       }
     );
@@ -121,7 +126,8 @@ async function fetchSessionDetails() {
 
     await fetchAttendance(
       foundSession.courseGroupId,
-      courseSessionId
+      courseSessionId,
+      authData.token
     );
   } catch (err: unknown) {
     if (err instanceof Error) {
