@@ -22,7 +22,7 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 
-
+import { BACKEND_URL } from "../globals";
 const qrCodeUrl = ref("");
 const loading = ref(true);
 const error = ref("");
@@ -35,7 +35,7 @@ const fetchQRCode = async () => {
       loading.value = true;
     }
     const response = await axios.get(
-      "https://attendme-backend.runasp.net/user/attendance/ticket/get",
+      `${BACKEND_URL}/user/attendance/ticket/get`,
       {
         headers: { Authorization: `Bearer ${getToken()}` },
       }
