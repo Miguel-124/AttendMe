@@ -26,13 +26,37 @@ def login_user(loginName: str = Query(...), password: str = Query(...)):
     )
     return TokenResult(token=access_token, expires=None)
 
-@router.get("/protected")
-def protected_route(current_user: str = Depends(verify_token)):
+@router.post("/device/reset")
+def reset_device():
     """
-    GET /user/protected
-    Endpoint chroniony – dostęp wymaga poprawnego tokena.
+    POST /user/device/reset
+    Resetuje dane urządzenia użytkownika.
     """
-    return {"message": f"Witaj, {current_user}! Masz dostęp do chronionej zawartości."}
+    return {"status": "Device reset"}
+
+@router.get("/device/register/token/get")
+def get_register_device_token():
+    """
+    GET /user/device/register/token/get
+    Zwraca token rejestracji urządzenia.
+    """
+    return {"token": "string"}
+
+@router.post("/device/register")
+def register_device(token: str = Query(...)):
+    """
+    POST /user/device/register
+    Rejestruje urządzenie użytkownika.
+    """
+    return {"status": "Device registered"}
+
+@router.get("/attendance/ticket/get")
+def get_attendance_ticket():
+    """
+    GET /user/attendance/ticket/get
+    Zwraca bilet obecności.
+    """
+    return {"ticket": "string"}
 
 @router.get("/get", response_model=User)
 def get_user(userId: int = Query(...)):
@@ -52,10 +76,19 @@ def get_user(userId: int = Query(...)):
         deviceName="string",
         isAdmin=False
     )
-# I tak dalej dla:
-# /user/device/reset
-# /user/device/register/token/get
-# /user/device/register
-# /user/attendance/ticket/get
-# /user/student/create
-# /user/teacher/create
+
+@router.post("/student/create")
+def create_student(student: User):
+    """
+    POST /user/student/create
+    Tworzy nowego studenta.
+    """
+    return {"status": "Student created"}
+
+@router.post("/teacher/create")
+def create_teacher(teacher: User):
+    """
+    POST /user/teacher/create
+    Tworzy nowego nauczyciela.
+    """
+    return {"status": "Teacher created"}
