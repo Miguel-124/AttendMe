@@ -12,6 +12,21 @@ dist-ssr
 *.sln
 *.sw?
 .env
+*__pycache__/
+*.log
+*.log.*
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+*.cache
+*.local
+*.env.local
+*venv
 
 node_modules
 dist
