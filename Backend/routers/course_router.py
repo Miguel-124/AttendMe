@@ -1,7 +1,6 @@
-from fastapi import APIRouter, HTTPException, status, Query
-from typing import Optional
-from datetime import datetime
-from app_models.course import Course, CourseGroup
+from fastapi import APIRouter, Query
+from datetime import datetime, timezone
+from app_models import Course, CourseGroup
 
 router = APIRouter(
     prefix="/course",
@@ -15,7 +14,7 @@ def save_course(course: Course):
     Tworzy/aktualizuje obiekt kursu.
     """
     course.courseId = 456
-    course.dateCreated = datetime.utcnow()
+    course.dateCreated = datetime.now(timezone.utc)
     return course
 
 @router.post("/group/save", response_model=CourseGroup)

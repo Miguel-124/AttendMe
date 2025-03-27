@@ -1,7 +1,8 @@
 # backend/routers/attender_group_router.py
-from fastapi import APIRouter, Query
-from datetime import datetime
-from app_models.attender_group import AttenderGroup
+from fastapi import APIRouter, Query, HTTPException, status
+from utils.auth import user_has_permission
+from datetime import datetime, timezone
+from app_models import AttenderGroup
 
 router = APIRouter(
     prefix="/attendergroup",
@@ -12,10 +13,15 @@ router = APIRouter(
 def save_attender_group(group: AttenderGroup):
     """
     POST /attendergroup/save
-    Zwraca zapisaną grupę (w prawdziwej aplikacji zapiszesz ją w bazie).
+    Zwraca zapisaną grupę.
     """
+    if not user_has_permission():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: Brak uprawnień do wykonania tej operacji."
+        )
     group.attenderGroupId = 123
-    group.dateCreated = datetime.utcnow()
+    group.dateCreated = datetime.now(timezone.utc)
     return group
 
 @router.post("/member/add")

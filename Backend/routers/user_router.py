@@ -1,9 +1,7 @@
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query, HTTPException, Depends
 from datetime import timedelta
-from utils.auth import create_access_token
-from fastapi import Depends
-from utils.auth import verify_token
-from app_models.user import TokenResult, User
+from utils.auth import create_access_token, verify_token
+from app_models import TokenResult, User
 
 router = APIRouter(
     prefix="/user",
@@ -12,6 +10,10 @@ router = APIRouter(
 
 @router.post("/login", response_model=TokenResult)
 def login_user(loginName: str = Query(...), password: str = Query(...)):
+    """
+    POST /user/login
+    Zwraca token JWT po prawidłowym logowaniu.
+    """
     # Weryfikacja danych logowania – w prawdziwej aplikacji sprawdź dane w bazie
     if loginName != "admin" or password != "secret":
         raise HTTPException(status_code=401, detail="Nieprawidłowe dane logowania")
@@ -27,7 +29,8 @@ def login_user(loginName: str = Query(...), password: str = Query(...)):
 @router.get("/protected")
 def protected_route(current_user: str = Depends(verify_token)):
     """
-    Endpoint chroniony – dostęp tylko z prawidłowym tokenem.
+    GET /user/protected
+    Endpoint chroniony – dostęp wymaga poprawnego tokena.
     """
     return {"message": f"Witaj, {current_user}! Masz dostęp do chronionej zawartości."}
 
@@ -37,8 +40,18 @@ def get_user(userId: int = Query(...)):
     GET /user/get
     Zwraca dane użytkownika o wskazanym ID.
     """
-    return User(userId=userId, loginName="test", name="Jan", surname="Kowalski")
-
+    return User(
+        userId=userId,
+        loginName="test",
+        name="Jan",
+        surname="Kowalski",
+        studentId=0,
+        teacherId=0,
+        student={"studentId": 0, "albumIdNumber": 0, "currentYearOfStudy": 0},
+        teacher={"teacherId": 0, "academicTitle": "string"},
+        deviceName="string",
+        isAdmin=False
+    )
 # I tak dalej dla:
 # /user/device/reset
 # /user/device/register/token/get

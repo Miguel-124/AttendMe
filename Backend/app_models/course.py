@@ -2,8 +2,8 @@
 from pydantic import BaseModel, Field
 from typing import List
 from datetime import datetime
-from app_models.user import User
-from app_models.attender_group import AttendanceLog, AttenderGroup
+from app_models import AttenderGroup, AttendanceLog, User
+
 
 class CourseGroupAttenderGroupAssigment(BaseModel):
     courseGroupAttenderGroupAssigmentId: int = Field(..., example=0)

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException, status, Depends
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
@@ -11,13 +11,17 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # Definiujemy schemat OAuth2 – określamy adres, pod którym użytkownik uzyska token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/login")
 
+def user_has_permission():
+    """Symulacja sprawdzenia uprawnień użytkownika."""
+    return True
+
 def create_access_token(data: dict, expires_delta: timedelta = None):
     """Generuje token JWT na podstawie danych wejściowych."""
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

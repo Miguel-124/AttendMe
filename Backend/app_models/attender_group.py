@@ -2,7 +2,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
-from app_models.user import User
+from app_models import User
 
 class AttendanceLog(BaseModel):
     attendanceLogId: int = Field(..., example=0)
@@ -23,4 +23,7 @@ class AttenderGroup(BaseModel):
     yearOfStudy: int = Field(..., example=0)
     studyDirection: str = Field(..., example="string")
     dateCreated: Optional[datetime] = Field(None, example="2025-03-26T21:14:28.702Z")
-    attenderGroupMembers: List[AttenderGroupMember] = Field(...)
+    attenderGroupMembers: List[AttenderGroupMember] = Field(default_factory=list)
+
+    class Config:
+        title = "AttenderGroup"
