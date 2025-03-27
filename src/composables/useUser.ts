@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { ref } from 'vue';
 import { getAuthToken } from './useAuth';
+import { BACKEND_URL } from '../main';
 
 export const userName = ref("Ładowanie...");
 export const userRole = ref("");
@@ -9,7 +10,7 @@ export async function fetchUserData() {
   const token = getAuthToken();
   if (!token) return;
   try {
-    const response = await axios.get("https://attendme-backend.runasp.net/user/get", {
+    const response = await axios.get(`${BACKEND_URL}/user/get`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     const userData = response.data;

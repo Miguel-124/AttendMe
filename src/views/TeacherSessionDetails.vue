@@ -145,6 +145,7 @@ import { useRoute } from "vue-router";
 import axios from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/pl";
+import { BACKEND_URL } from "@/main";
 dayjs.locale("pl");
 
 const route = useRoute();
@@ -189,7 +190,7 @@ interface Session {
 async function openQrScanner() {
   try {
     const response = await axios.get(
-      `https://attendme-backend.runasp.net/course/session/attendance/scanner/token/get`,
+      `${BACKEND_URL}/course/session/attendance/scanner/token/get`,
       {
         params: { courseSessionId: sessionId.value },
         headers: { Authorization: `Bearer ${authToken}` },
@@ -217,7 +218,7 @@ async function openQrScanner() {
 async function copyRegistrationLink(userId: number) {
   try {
     const response = await axios.get(
-      `https://attendme-backend.runasp.net/user/device/register/token/get`,
+      `${BACKEND_URL}/user/device/register/token/get`,
       {
         params: { deviceUserId: userId },
         headers: { Authorization: `Bearer ${authToken}` },
@@ -243,7 +244,7 @@ async function copyRegistrationLink(userId: number) {
 async function fetchSessions() {
   try {
     const response = await axios.post(
-      "https://attendme-backend.runasp.net/course/teacher/sessions/get",
+      `${BACKEND_URL}/course/teacher/sessions/get`,
       {
         pageNumber: 1,
         pageSize: 999999,
@@ -264,7 +265,7 @@ async function fetchSessions() {
 async function fetchAttendanceList() {
   try {
     const response = await axios.get<Attendance[]>(
-      `https://attendme-backend.runasp.net/course/session/attendance-list/get?sessionId=${sessionId.value}`,
+      `${BACKEND_URL}/course/session/attendance-list/get?sessionId=${sessionId.value}`,
       { headers: { Authorization: `Bearer ${authToken}` } }
     );
     attendanceList.value = response.data;
@@ -279,7 +280,7 @@ async function fetchDevicesForAttendance() {
       try {
         if (!authToken) return;
         const response = await axios.get(
-          "https://attendme-backend.runasp.net/user/get",
+          `${BACKEND_URL}/user/get`,
           {
             params: { userId: attender.attenderUserId },
             headers: { Authorization: `Bearer ${authToken}` },
@@ -303,7 +304,7 @@ async function toggleAttendance(attender: Attendance) {
   const newStatus = !attender.wasUserPresent;
   try {
     await axios.get(
-      `https://attendme-backend.runasp.net/course/session/attendance/toggle`,
+      `${BACKEND_URL}/course/session/attendance/toggle`,
       {
         params: {
           attendingUserId: attender.attenderUserId,
@@ -338,7 +339,7 @@ async function getUserDeviceName(userId: number) {
   try {
     if (!authToken) return;
     const response = await axios.get(
-      "https://attendme-backend.runasp.net/user/get",
+      `${BACKEND_URL}/user/get`,
       {
         params: { userId },
         headers: { Authorization: `Bearer ${authToken}` },
@@ -364,7 +365,7 @@ async function resetDevice() {
     if (!token) return;
     const deviceUserId = selectedAttender.value.attenderUserId;
     await axios.post(
-      "https://attendme-backend.runasp.net/user/device/reset",
+      `${BACKEND_URL}/user/device/reset`,
       {},
       {
         params: { deviceUserId },

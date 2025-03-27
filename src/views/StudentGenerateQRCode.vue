@@ -21,8 +21,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
+import { BACKEND_URL } from "@/main";
 
-import { BACKEND_URL } from "../globals";
 const qrCodeUrl = ref("");
 const loading = ref(true);
 const error = ref("");

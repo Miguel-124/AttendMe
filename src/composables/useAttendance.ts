@@ -2,6 +2,7 @@ import axios from 'axios';
 import { ref } from 'vue';
 import { getAuthToken } from './useAuth';
 import { setError } from './useError';
+import { BACKEND_URL } from '../main';
 
 export interface Attendance {
   attendanceLogId: number | null;
@@ -27,7 +28,7 @@ export async function fetchAttendance(
   ) {
     try {
       const response = await axios.get(
-        `https://attendme-backend.runasp.net/course/student/attendance/get?courseGroupId=${courseGroupId}`,
+        `${BACKEND_URL}/course/student/attendance/get?courseGroupId=${courseGroupId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -49,7 +50,7 @@ export async function toggleAttendance(attender: Attendance) {
   const newStatus = !attender.wasUserPresent;
   try {
     await axios.get(
-      `https://attendme-backend.runasp.net/course/session/attendance/toggle`,
+      `${BACKEND_URL}/course/session/attendance/toggle`,
       {
         params: {
           attendingUserId: attender.attenderUserId,

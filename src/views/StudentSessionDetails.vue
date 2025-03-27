@@ -71,6 +71,7 @@ import "dayjs/locale/pl";
 import { setError } from "@/composables/useError";
 import { fetchUserData } from "@/composables/useUser";
 import { fetchAttendance, isPresent, attendanceCount } from "@/composables/useAttendance";
+import { BACKEND_URL } from "@/main";
 
 
 dayjs.locale("pl");
@@ -103,7 +104,7 @@ async function fetchSessionDetails() {
 
   try {
     const response = await axios.post(
-      "https://attendme-backend.runasp.net/course/student/sessions/get",
+      `${BACKEND_URL}/course/student/sessions/get`,
       {
         pageNumber: 1,
         pageSize: 999999,

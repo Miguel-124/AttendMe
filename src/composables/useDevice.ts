@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { ref } from 'vue';
 import { getAuthToken } from './useAuth';
+import { BACKEND_URL } from '../main';
 
 export const deviceName = ref("");
 export const deviceTokenLoading = ref(false);
@@ -11,7 +12,7 @@ export async function getUserDeviceName(userId: number) {
   if (!token) return;
   try {
     const response = await axios.get(
-      "https://attendme-backend.runasp.net/user/get",
+      `${BACKEND_URL}/user/get`,
       {
         params: { userId },
         headers: { Authorization: `Bearer ${token}` },
@@ -35,7 +36,7 @@ export async function resetDevice(selectedAttender: { attenderUserId: number; de
   if (!token || !selectedAttender) return;
   try {
     await axios.post(
-      "https://attendme-backend.runasp.net/user/device/reset",
+      `${BACKEND_URL}/user/device/reset`,
       {},
       {
         params: { deviceUserId: selectedAttender.attenderUserId },

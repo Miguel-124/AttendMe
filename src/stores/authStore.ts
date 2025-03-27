@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "axios";
+import { BACKEND_URL } from "../main";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -40,7 +41,7 @@ export const useAuthStore = defineStore("auth", {
     async login(email: string, password: string) {
       try {
         const response = await axios.post(
-          `https://attendme-backend.runasp.net/user/login?loginName=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+          `${BACKEND_URL}/user/login?loginName=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
         );
 
         if (!response.data.token) {
@@ -54,7 +55,7 @@ export const useAuthStore = defineStore("auth", {
         );
 
         const userResponse = await axios.get(
-          "https://attendme-backend.runasp.net/user/get",
+          `${BACKEND_URL}/user/get`,
           {
             headers: {
               Authorization: `Bearer ${this.token}`,

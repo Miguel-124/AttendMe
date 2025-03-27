@@ -34,6 +34,7 @@
 import { defineComponent } from "vue";
 import axios from "axios";
 import jsQR from "jsqr";
+import { BACKEND_URL } from "@/main";
 
 interface AttendanceResponse {
   name: string;
@@ -125,7 +126,7 @@ export default defineComponent({
     async registerAttendance(attenderToken: string) {
       try {
         const response = await axios.get(
-          `https://attendme-backend.runasp.net/course/session/attendance/register?attenderToken=${attenderToken}`,
+          `${BACKEND_URL}/course/session/attendance/register?attenderToken=${attenderToken}`,
           {
             headers: { Authorization: `Bearer ${getToken()}` },
           }

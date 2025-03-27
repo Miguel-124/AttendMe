@@ -68,6 +68,7 @@ import { fetchUserData, userRole } from "@/composables/useUser";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import dayjs from "dayjs";
+import { BACKEND_URL } from "@/main";
 //import "dayjs/locale/pl";
 //dayjs.locale("pl");
 
@@ -136,8 +137,8 @@ async function fetchSessions() {
   try {
     const url =
       userRole.value === "Nauczyciel"
-        ? "https://attendme-backend.runasp.net/course/teacher/sessions/get"
-        : "https://attendme-backend.runasp.net/course/student/sessions/get";
+        ? `${BACKEND_URL}/course/teacher/sessions/get`
+        : `${BACKEND_URL}/course/student/sessions/get`;
 
     const response = await axios.post(
       url,

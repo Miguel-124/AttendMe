@@ -86,6 +86,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
+import { BACKEND_URL } from "@/main";
 
 /** Funkcja pomocnicza do dekodowania JWT i sprawdzenia "sub" */
 function parseJwt(token: string) {
@@ -157,7 +158,7 @@ const registerDevice = async () => {
   successMessage.value = null;
   try {
     const response = await axios.post(
-      "https://attendme-backend.runasp.net/user/device/register",
+      `${BACKEND_URL}/user/device/register`,
       {
         deviceName: deviceNameInput.value,
         studentName: firstName.value,
